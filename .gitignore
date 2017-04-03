@@ -1,0 +1,36 @@
+###### Editor debris ########
+
+*.org
+*~
+¥#*
+
+# spyder
+.spyderproject/
+
+# pycharm
+**/.idea/
+
+# pyenv
+.python-version
+
+# setuptool and py.test
+.cache/
+.coverage
+.eggs/
+*.egg-info/
+build/
+
+###### Python debris ########
+
+*.pyc
+
+
+###### Impl. specific debris ########
+
+*.log
+
+###### Work routines debris ########
+
+word_embedding_loader/format.py
+word_embedding_loader/loader/word2vec_bin.c
+word_embedding_loader/loader/word2vec_bin.so
