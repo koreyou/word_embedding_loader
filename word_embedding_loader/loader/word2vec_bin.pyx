@@ -1,6 +1,6 @@
 
 import ctypes
-from libc.stdio cimport FILE, fopen, fscanf, fclose, fread
+from libc.stdio cimport FILE, fscanf, fread, fdopen
 import numpy as np
 cimport numpy as np
 
@@ -20,8 +20,8 @@ def check_valid(line):
     return True
 
 
-def load(path, int max_vocabs):
-    cdef FILE *f = fopen(path, 'rb')
+def load(fin, int max_vocabs):
+    cdef FILE *f = fdopen(fin.fileno(), 'rb') # attach the stream
     if (f) == NULL:
        raise IOError()
     cdef long long words, size
@@ -41,6 +41,5 @@ def load(path, int max_vocabs):
         vocabs[<bytes>vocab[:l - 1]] = i
         fread(&arr[i, 0], sizeof(FLOAT), size, f)
         i += 1
-    fclose(f)
     ranks = np.arange(len(arr))
     return arr, vocabs, None, ranks

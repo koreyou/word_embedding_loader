@@ -12,7 +12,8 @@ import word_embedding_loader.loader.word2vec_bin as word2vec
 def load_word2vec_bin():
     cur_dir = os.path.dirname(os.path.abspath(__file__))
     path = os.path.join(cur_dir, 'word2vec.bin')
-    ret = word2vec.load(path, 30)
+    with open(path, 'rb') as f:
+        ret = word2vec.load(f, 30)
     return ret
 
 
