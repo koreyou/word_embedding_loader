@@ -39,3 +39,9 @@ def test_load(load_glove):
     assert ranks[vocab[u'the']] == 0
     assert ranks[vocab[u',']] == 1
     assert ranks[vocab[u'.']] == 2
+
+
+def test_check_valid():
+    assert glove.check_valid(u"the 0.418 0.24968 -0.41242 0.1217",
+                             u", 0.013441 0.23682 -0.16899 0.40951")
+    assert not glove.check_valid(u"2 4", u"the 0.418 0.24968 -0.41242 0.1217")

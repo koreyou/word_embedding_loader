@@ -4,8 +4,8 @@ from __future__ import absolute_import, print_function
 import numpy as np
 
 
-def check_valid(line):
-    data = line.strip().split(u' ')
+def check_valid(line0, line1):
+    data = line0.strip().split(u' ')
     if len(data) <= 2:
         return False
     # check if data[2:] is float values

@@ -8,13 +8,14 @@ cimport numpy as np
 ctypedef np.float32_t FLOAT
 
 
-def check_valid(line):
-    data = line.strip().split(u' ')
-    if len(data) != 2:
+def check_valid(line0, line1):
+    # Only check the first line
+    data0 = line0.split(u' ')
+    if len(data0) != 2:
         return False
-    # check if it really is (int, int) pairs
+    # check if data0 is int values
     try:
-        map(int, data)
+        map(int, data0)
     except:
         return False
     return True

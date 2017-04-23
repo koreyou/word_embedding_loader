@@ -5,12 +5,12 @@ import numpy as np
 
 
 def check_valid(line0, line1):
-    data = line0.strip().split(u' ')
-    if len(data) <= 2:
+    data0 = line0.split(u' ')
+    if len(data0) != 2:
         return False
-    # check if data[2:] is float values
+    # check if data0 is int values
     try:
-        map(float, data[2:])
+        map(int, data0)
         _parse_line(line1, float)
     except:
         return False

@@ -35,3 +35,11 @@ def test_load(load_word2vec_text):
     assert scores is None
     assert ranks[vocab[u'</s>']] == 0
     assert ranks[vocab[u'the']] == 1
+
+
+def test_check_valid():
+    assert word2vec.check_valid(u"1 4",
+                                u"the 0.418 0.24968 -0.41242 0.1217")
+    assert not word2vec.check_valid(
+        u"the 0.418 0.24968 -0.41242 0.1217",
+        u", 0.013441 0.23682 -0.16899 0.40951")
