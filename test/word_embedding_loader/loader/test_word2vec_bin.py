@@ -8,8 +8,8 @@ from numpy.testing import assert_allclose
 import word_embedding_loader.loader.word2vec_bin as word2vec
 
 
-def test_load(load_word2vec_bin):
-    arr, vocab, scores, ranks = load_word2vec_bin
+def test_load(word2vec_bin_file):
+    arr, vocab, scores, ranks = word2vec.load(word2vec_bin_file, 30)
     assert u'</s>' in vocab
     assert u'the' in vocab
     assert u'of' in vocab

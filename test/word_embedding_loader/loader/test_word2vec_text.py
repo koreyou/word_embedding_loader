@@ -10,8 +10,8 @@ from numpy.testing import assert_array_equal
 import word_embedding_loader.loader.word2vec_text as word2vec
 
 
-def test_load(load_word2vec_text):
-    arr, vocab, scores, ranks = load_word2vec_text
+def test_load(word2vec_text_file):
+    arr, vocab, scores, ranks = word2vec.load(word2vec_text_file, None, dtype=np.float32)
     assert u'</s>' in vocab
     assert u'the' in vocab
     assert len(vocab) == 2

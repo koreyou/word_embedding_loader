@@ -10,8 +10,8 @@ from numpy.testing import assert_array_equal
 import word_embedding_loader.loader.glove as glove
 
 
-def test_load(load_glove):
-    arr, vocab, scores, ranks = load_glove
+def test_load(glove_file):
+    arr, vocab, scores, ranks = glove.load(glove_file, None, dtype=np.float32)
     assert u'the' in vocab
     assert u',' in vocab
     assert u'.' in vocab
