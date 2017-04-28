@@ -10,14 +10,6 @@ from numpy.testing import assert_array_equal
 import word_embedding_loader.loader.glove as glove
 
 
-@pytest.fixture
-def load_glove():
-    f = StringIO.StringIO(u"""the 0.418 0.24968 -0.41242 0.1217
-, 0.013441 0.23682 -0.16899 0.40951
-. 0.15164 0.30177 -0.16763 0.17684""")
-    return glove.load(f, None, dtype=np.float32)
-
-
 def test_load(load_glove):
     arr, vocab, scores, ranks = load_glove
     assert u'the' in vocab

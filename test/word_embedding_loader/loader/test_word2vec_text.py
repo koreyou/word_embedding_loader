@@ -10,14 +10,6 @@ from numpy.testing import assert_array_equal
 import word_embedding_loader.loader.word2vec_text as word2vec
 
 
-@pytest.fixture
-def load_word2vec_text():
-    f = StringIO.StringIO(u"""2 3
-</s> 0.080054 0.088388 -0.07660
-the -1.420859 1.156857 0.744776""")
-    return word2vec.load(f, None, dtype=np.float32)
-
-
 def test_load(load_word2vec_text):
     arr, vocab, scores, ranks = load_word2vec_text
     assert u'</s>' in vocab

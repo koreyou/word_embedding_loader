@@ -8,15 +8,6 @@ from numpy.testing import assert_allclose
 import word_embedding_loader.loader.word2vec_bin as word2vec
 
 
-@pytest.fixture
-def load_word2vec_bin():
-    cur_dir = os.path.dirname(os.path.abspath(__file__))
-    path = os.path.join(cur_dir, 'word2vec.bin')
-    with open(path, 'rb') as f:
-        ret = word2vec.load(f, 30)
-    return ret
-
-
 def test_load(load_word2vec_bin):
     arr, vocab, scores, ranks = load_word2vec_bin
     assert u'</s>' in vocab
