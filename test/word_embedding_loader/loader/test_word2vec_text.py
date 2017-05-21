@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function
 
-import StringIO
+from collections import OrderedDict
 
 import pytest
 import numpy as np

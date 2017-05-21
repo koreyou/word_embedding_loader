@@ -31,3 +31,12 @@ def word2vec_text_file():
 the -1.420859 1.156857 0.744776""")
     yield f
     f.close()
+
+
+@pytest.fixture
+def vocab_file():
+    f = StringIO.StringIO(u"""</s> 0
+the 1061396
+of 593677""")
+    yield f
+    f.close()
