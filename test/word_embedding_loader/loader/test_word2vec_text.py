@@ -10,8 +10,10 @@ from numpy.testing import assert_array_equal
 import word_embedding_loader.loader.word2vec_text as word2vec
 
 
-def test_load(word2vec_text_file):
-    arr, vocab, scores, ranks = word2vec.load(word2vec_text_file, None, dtype=np.float32)
+@pytest.mark.parametrize("keep_order", [True, False])
+def test_load(word2vec_text_file, keep_order):
+    arr, vocab, scores = word2vec.load(word2vec_text_file, None,
+                                       dtype=np.float32, keep_order=keep_order)
     assert u'</s>' in vocab
     assert u'the' in vocab
     assert len(vocab) == 2
@@ -25,8 +27,14 @@ def test_load(word2vec_text_file):
                                 dtype=np.float32))
 
     assert scores is None
-    assert ranks[vocab[u'</s>']] == 0
-    assert ranks[vocab[u'the']] == 1
+
+
+def test_load_order(word2vec_text_file):
+    arr, vocab, scores = word2vec.load(
+        word2vec_text_file, None, dtype=np.float32, keep_order=True)
+    vocab_list = vocab.keys()
+    assert vocab_list[0] == u'</s>'
+    assert vocab_list[1] == u'the'
 
 
 def test_check_valid():

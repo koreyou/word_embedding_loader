@@ -39,7 +39,7 @@ def _classify_format(f):
 
 class WordEmbedding(object):
     def __init__(self, path, dtype=np.float32, max_size=-1, format=None,
-                 encoding='utf-8'):
+                 keep_order=False, encoding='utf-8'):
         """
         Load pretrained word embedding from a file.
 
@@ -67,11 +67,10 @@ class WordEmbedding(object):
                     loader = word2vec_text
                 else:
                     raise NameError('Unknown format "%s"' % format)
-            arr, vocab, counts, ranks = loader.load(f, dtype=dtype)
+            arr, vocab, counts = loader.load(f, dtype=dtype, keep_order=keep_order)
         self.vectors = arr
         self.vocab = vocab
         self.counts = counts
-        self.ranks = ranks
 
     def save(self, path, format):
         pass

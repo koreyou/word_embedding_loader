@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function
 
+from collections import OrderedDict
+
 import numpy as np
 
 
@@ -23,8 +25,8 @@ def _parse_line(line, dtype):
     return token, v
 
 
-def load(fin, vocab_list=None, dtype=np.float32):
-    vocab = {}
+def load(fin, vocab_list=None, dtype=np.float32, keep_order=False):
+    vocab = OrderedDict() if keep_order else dict()
     arr = None
     i = 0
     for line in fin:
@@ -37,5 +39,4 @@ def load(fin, vocab_list=None, dtype=np.float32):
             arr = np.append(arr, [v], axis=0)
         vocab[token] = i
         i += 1
-    ranks = np.arange(len(arr))
-    return arr, vocab, None, ranks
+    return arr, vocab, None

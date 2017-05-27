@@ -26,8 +26,8 @@ def _parse_line(line, dtype):
     return token, v
 
 
-def load(fin, vocab_list=None, dtype=np.float32):
-    vocab = {}
+def load(fin, vocab_list=None, dtype=np.float32, keep_order=False):
+    vocab = OrderedDict() if keep_order else dict()
     line = fin.next()
     data = line.strip().split(u' ')
     assert len(data) == 2
@@ -38,5 +38,4 @@ def load(fin, vocab_list=None, dtype=np.float32):
         token, v = _parse_line(line, dtype)
         arr[i, :] = v
         vocab[token] = i
-    ranks = np.arange(len(arr))
-    return arr, vocab, None, ranks
+    return arr, vocab, None

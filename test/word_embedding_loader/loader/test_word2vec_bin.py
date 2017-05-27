@@ -1,15 +1,14 @@
 from __future__ import absolute_import, print_function
-import os
 
-import pytest
 import numpy as np
+import pytest
+import word_embedding_loader.loader.word2vec_bin as word2vec
 from numpy.testing import assert_allclose
 
-import word_embedding_loader.loader.word2vec_bin as word2vec
 
-
-def test_load(word2vec_bin_file):
-    arr, vocab, scores, ranks = word2vec.load(word2vec_bin_file, 30)
+@pytest.mark.parametrize("keep_order", [True, False])
+def test_load(word2vec_bin_file, keep_order):
+    arr, vocab, scores = word2vec.load(word2vec_bin_file, 30, keep_order)
     assert u'</s>' in vocab
     assert u'the' in vocab
     assert u'of' in vocab
@@ -31,9 +30,15 @@ def test_load(word2vec_bin_file):
                     atol=1e-8)
 
     assert scores is None
-    assert ranks[vocab[u'</s>']] == 0
-    assert ranks[vocab[u'the']] == 1
-    assert ranks[vocab[u'of']] == 2
+
+
+def test_load_order(word2vec_bin_file):
+    arr, vocab, scores = word2vec.load(word2vec_bin_file, 30,
+                                       keep_order=True)
+    vocab_list = vocab.keys()
+    assert vocab_list[0] == u'</s>'
+    assert vocab_list[1] == u'the'
+    assert vocab_list[2] == u'of'
 
 
 def test_check_valid():

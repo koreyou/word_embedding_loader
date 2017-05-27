@@ -1,9 +1,10 @@
+from collections import OrderedDict
 
 import ctypes
 from libc.stdio cimport FILE, fscanf, fread, fdopen
 import numpy as np
 cimport numpy as np
-
+from cpython cimport bool
 
 ctypedef np.float32_t FLOAT
 
@@ -21,7 +22,7 @@ def check_valid(line0, line1):
     return True
 
 
-def load(fin, int max_vocabs):
+def load(fin, int max_vocabs, bool keep_order):
     cdef FILE *f = fdopen(fin.fileno(), 'rb') # attach the stream
     if (f) == NULL:
        raise IOError()
@@ -29,7 +30,7 @@ def load(fin, int max_vocabs):
     cdef char ch
     cdef int l
     cdef char[100] vocab
-    vocabs = {}
+    vocabs = OrderedDict() if keep_order else dict()
     fscanf(f, '%lld', &words)
     fscanf(f, '%lld', &size)
     size = min(max_vocabs, size)
@@ -42,5 +43,4 @@ def load(fin, int max_vocabs):
         vocabs[<bytes>vocab[:l - 1]] = i
         fread(&arr[i, 0], sizeof(FLOAT), size, f)
         i += 1
-    ranks = np.arange(len(arr))
-    return arr, vocabs, None, ranks
+    return arr, vocabs, None
