@@ -11,8 +11,8 @@ import word_embedding_loader.loader.glove as glove
 
 @pytest.mark.parametrize("keep_order", [True, False])
 def test_load(glove_file, keep_order):
-    arr, vocab, scores = glove.load(glove_file, None, dtype=np.float32,
-                                    keep_order=keep_order)
+    arr, vocab = glove.load(glove_file, None, dtype=np.float32,
+                            keep_order=keep_order)
     assert u'the' in vocab
     assert u',' in vocab
     assert u'.' in vocab
@@ -29,12 +29,11 @@ def test_load(glove_file, keep_order):
     assert_array_equal(arr[vocab[u'.']],
                        np.array([0.15164, 0.30177, -0.16763, 0.17684],
                                 dtype=np.float32))
-    assert scores is None
 
 
 def test_load_order(glove_file):
-    arr, vocab, scores = glove.load(glove_file, None, dtype=np.float32,
-                                    keep_order=True)
+    arr, vocab = glove.load(glove_file, None, dtype=np.float32,
+                            keep_order=True)
     vocab_list = vocab.keys()
     assert vocab_list[0] == u'the'
     assert vocab_list[1] == u','

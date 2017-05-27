@@ -38,4 +38,4 @@ def load(fin, vocab_list=None, dtype=np.float32, keep_order=False):
         token, v = _parse_line(line, dtype)
         arr[i, :] = v
         vocab[token] = i
-    return arr, vocab, None
+    return arr, vocab

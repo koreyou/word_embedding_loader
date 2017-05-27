@@ -67,10 +67,9 @@ class WordEmbedding(object):
                     loader = word2vec_text
                 else:
                     raise NameError('Unknown format "%s"' % format)
-            arr, vocab, counts = loader.load(f, dtype=dtype, keep_order=keep_order)
+            arr, vocab = loader.load(f, dtype=dtype, keep_order=keep_order)
         self.vectors = arr
         self.vocab = vocab
-        self.counts = counts
 
     def save(self, path, format):
         pass

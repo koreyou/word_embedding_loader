@@ -43,4 +43,4 @@ def load(fin, int max_vocabs, bool keep_order):
         vocabs[<bytes>vocab[:l - 1]] = i
         fread(&arr[i, 0], sizeof(FLOAT), size, f)
         i += 1
-    return arr, vocabs, None
+    return arr, vocabs

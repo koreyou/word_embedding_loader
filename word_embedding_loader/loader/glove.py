@@ -39,4 +39,4 @@ def load(fin, vocab_list=None, dtype=np.float32, keep_order=False):
             arr = np.append(arr, [v], axis=0)
         vocab[token] = i
         i += 1
-    return arr, vocab, None
+    return arr, vocab

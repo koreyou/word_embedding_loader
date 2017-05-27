@@ -8,7 +8,7 @@ from numpy.testing import assert_allclose
 
 @pytest.mark.parametrize("keep_order", [True, False])
 def test_load(word2vec_bin_file, keep_order):
-    arr, vocab, scores = word2vec.load(word2vec_bin_file, 30, keep_order)
+    arr, vocab = word2vec.load(word2vec_bin_file, 30, keep_order)
     assert u'</s>' in vocab
     assert u'the' in vocab
     assert u'of' in vocab
@@ -29,11 +29,9 @@ def test_load(word2vec_bin_file, keep_order):
                               -1.82213438, -0.57173866], dtype=np.float32),
                     atol=1e-8)
 
-    assert scores is None
-
 
 def test_load_order(word2vec_bin_file):
-    arr, vocab, scores = word2vec.load(word2vec_bin_file, 30,
+    arr, vocab = word2vec.load(word2vec_bin_file, 30,
                                        keep_order=True)
     vocab_list = vocab.keys()
     assert vocab_list[0] == u'</s>'
