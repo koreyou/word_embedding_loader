@@ -16,14 +16,17 @@ def test_load(word2vec_text_file, keep_order):
                                dtype=np.float32, keep_order=keep_order)
     assert u'</s>' in vocab
     assert u'the' in vocab
-    assert len(vocab) == 2
-    assert len(arr) == 2
+    assert len(vocab) == 3
+    assert len(arr) == 3
     assert arr.dtype == np.float32
     assert_array_equal(arr[vocab[u'</s>']],
-                       np.array([ 0.080054, 0.088388, -0.07660],
+                       np.array([ 0.080054, 0.088388],
                                 dtype=np.float32))
     assert_array_equal(arr[vocab[u'the']],
-                       np.array([-1.420859, 1.156857, 0.744776],
+                       np.array([-1.420859, 1.156857],
+                                dtype=np.float32))
+    assert_array_equal(arr[vocab[u'a']],
+                       np.array([-0.16799, 0.10951],
                                 dtype=np.float32))
 
 
@@ -33,6 +36,7 @@ def test_load_order(word2vec_text_file):
     vocab_list = vocab.keys()
     assert vocab_list[0] == u'</s>'
     assert vocab_list[1] == u'the'
+    assert vocab_list[2] == u'a'
 
 
 def test_check_valid():

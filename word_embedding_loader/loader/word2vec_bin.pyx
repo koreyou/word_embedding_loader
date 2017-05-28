@@ -22,18 +22,12 @@ def check_valid(line0, line1):
     return True
 
 
-def load(fin, int max_vocabs, bool keep_order):
-    cdef FILE *f = fdopen(fin.fileno(), 'rb') # attach the stream
-    if (f) == NULL:
-       raise IOError()
-    cdef long long words, size
+cdef _load_impl(FILE *f, long long words, long long size, bool keep_order,
+               set vocab_list):
     cdef char ch
     cdef int l
     cdef char[100] vocab
     vocabs = OrderedDict() if keep_order else dict()
-    fscanf(f, '%lld', &words)
-    fscanf(f, '%lld', &size)
-    size = min(max_vocabs, size)
     cdef np.ndarray[FLOAT, ndim=2, mode="c"] arr = np.zeros([words, size], dtype=np.float32)
     cdef int i = 0
     while True:
@@ -44,3 +38,18 @@ def load(fin, int max_vocabs, bool keep_order):
         fread(&arr[i, 0], sizeof(FLOAT), size, f)
         i += 1
     return arr, vocabs
+
+
+def load(fin, vocab_list=None, dtype=np.float32, keep_order=False, max_vocab=None):
+    cdef FILE *f = fdopen(fin.fileno(), 'rb') # attach the stream
+    if (f) == NULL:
+       raise IOError()
+    cdef long long words, size
+    fscanf(f, '%lld', &words)
+    fscanf(f, '%lld', &size)
+    if max_vocab is None:
+        words = words
+    else:
+        words = min(max_vocab, words)
+    arr, vocabs = _load_impl(f, words, size, keep_order, vocab_list)
+    return arr.astype(dtype), vocabs

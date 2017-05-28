@@ -25,11 +25,13 @@ def _parse_line(line, dtype):
     return token, v
 
 
-def load(fin, vocab_list=None, dtype=np.float32, keep_order=False):
+def load(fin, vocab_list=None, dtype=np.float32, keep_order=False, max_vocab=None):
     vocab = OrderedDict() if keep_order else dict()
     arr = None
     i = 0
     for line in fin:
+        if max_vocab is not None and i >= max_vocab:
+            break
         token, v = _parse_line(line, dtype)
         if vocab_list is not None and token not in vocab_list:
             continue

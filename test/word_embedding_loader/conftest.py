@@ -26,9 +26,10 @@ def word2vec_bin_file():
 
 @pytest.fixture
 def word2vec_text_file():
-    f = StringIO.StringIO(u"""2 3
-</s> 0.080054 0.088388 -0.07660
-the -1.420859 1.156857 0.744776""")
+    f = StringIO.StringIO(u"""3 2
+</s> 0.080054 0.088388
+the -1.420859 1.156857
+a -0.16799 0.10951""")
     yield f
     f.close()
 

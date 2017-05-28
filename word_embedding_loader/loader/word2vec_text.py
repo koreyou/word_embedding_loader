@@ -26,15 +26,19 @@ def _parse_line(line, dtype):
     return token, v
 
 
-def load(fin, vocab_list=None, dtype=np.float32, keep_order=False):
+def load(fin, vocab_list=None, dtype=np.float32, keep_order=False, max_vocab=None):
     vocab = OrderedDict() if keep_order else dict()
     line = fin.next()
     data = line.strip().split(u' ')
     assert len(data) == 2
     words = int(data[0])
+    if max_vocab is not None:
+        words = min(max_vocab, words)
     size = int(data[1])
     arr = np.empty((words, size), dtype=dtype)
     for i, line in enumerate(fin):
+        if max_vocab is not None and i >= max_vocab:
+            break
         token, v = _parse_line(line, dtype)
         arr[i, :] = v
         vocab[token] = i

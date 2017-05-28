@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function
 
-import StringIO
-
 import pytest
 import numpy as np
 from numpy.testing import assert_array_equal
 
 import word_embedding_loader.loader.glove as glove
 
+
 @pytest.mark.parametrize("keep_order", [True, False])
 def test_load(glove_file, keep_order):
-    arr, vocab = glove.load(glove_file, None, dtype=np.float32,
-                            keep_order=keep_order)
+    arr, vocab = glove.load(glove_file, vocab_list=None, dtype=np.float32,
+                            keep_order=keep_order, max_vocab=None)
     assert u'the' in vocab
     assert u',' in vocab
     assert u'.' in vocab
