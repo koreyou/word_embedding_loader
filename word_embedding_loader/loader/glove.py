@@ -27,7 +27,7 @@ def _parse_line(line, dtype):
     return token, v
 
 
-def load(fin, vocab_list=None, dtype=np.float32, keep_order=False, max_vocab=None,
+def load(fin, dtype=np.float32, keep_order=False, max_vocab=None,
          encoding='utf-8'):
     vocab = OrderedDict() if keep_order else dict()
     arr = None
@@ -39,8 +39,6 @@ def load(fin, vocab_list=None, dtype=np.float32, keep_order=False, max_vocab=Non
             token, v = _parse_line(line, dtype)
         except (ValueError, IndexError):
             raise ParseError('Parsing error in line: %s' % line)
-        if vocab_list is not None and token not in vocab_list:
-            continue
         if token in vocab:
             parse_warn('Duplicated vocabulary %s' % token.encode(encoding))
             continue

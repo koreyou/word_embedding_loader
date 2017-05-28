@@ -14,8 +14,7 @@ from word_embedding_loader import ParseError, ParseWarning
 
 @pytest.mark.parametrize("keep_order", [True, False])
 def test_load(word2vec_text_file, keep_order):
-    arr, vocab = word2vec.load(word2vec_text_file, None,
-                               dtype=np.float32, keep_order=keep_order)
+    arr, vocab = word2vec.load(word2vec_text_file, keep_order=keep_order)
     assert u'</s>' in vocab
     assert u'the' in vocab
     assert u'日本語' in vocab
@@ -35,7 +34,7 @@ def test_load(word2vec_text_file, keep_order):
 
 def test_load_order(word2vec_text_file):
     arr, vocab = word2vec.load(
-        word2vec_text_file, None, dtype=np.float32, keep_order=True)
+        word2vec_text_file, dtype=np.float32, keep_order=True)
     vocab_list = vocab.keys()
     assert vocab_list[0] == u'</s>'
     assert vocab_list[1] == u'the'

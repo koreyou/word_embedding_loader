@@ -23,7 +23,7 @@ def check_valid(line0, line1):
 
 
 cdef _load_impl(FILE *f, long long words, long long size, bool keep_order,
-               set vocab_list, str encoding, bool is_encoded, str errors):
+                str encoding, bool is_encoded, str errors):
     cdef char ch
     cdef int l
     cdef char[100] vocab
@@ -44,7 +44,7 @@ cdef _load_impl(FILE *f, long long words, long long size, bool keep_order,
     return arr, vocabs
 
 
-def load(fin, vocab_list=None, dtype=np.float32, keep_order=False, max_vocab=None,
+def load(fin, dtype=np.float32, keep_order=False, max_vocab=None,
          encoding='utf-8', errors='strict'):
     cdef FILE *f = fdopen(fin.fileno(), 'rb') # attach the stream
     if (f) == NULL:
@@ -56,7 +56,7 @@ def load(fin, vocab_list=None, dtype=np.float32, keep_order=False, max_vocab=Non
         words = words
     else:
         words = min(max_vocab, words)
-    ret = _load_impl(f, words, size, keep_order, vocab_list, encoding,
+    ret = _load_impl(f, words, size, keep_order, encoding,
                      encoding is not None, errors)
     arr, vocabs = ret
     return arr.astype(dtype), vocabs

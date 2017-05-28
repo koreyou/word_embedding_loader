@@ -30,7 +30,7 @@ def _parse_line(line, dtype):
     return token, v
 
 
-def load(fin, vocab_list=None, dtype=np.float32, keep_order=False, max_vocab=None,
+def load(fin, dtype=np.float32, keep_order=False, max_vocab=None,
          encoding='utf-8', errors='strict'):
     vocab = OrderedDict() if keep_order else dict()
     line = fin.next()
