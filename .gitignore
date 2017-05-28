@@ -33,6 +33,5 @@ doc/build/
 
 ###### Work routines debris ########
 
-word_embedding_loader/format.py
 word_embedding_loader/loader/word2vec_bin.c
 word_embedding_loader/loader/word2vec_bin.so
