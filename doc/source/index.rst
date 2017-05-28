@@ -7,9 +7,11 @@ Welcome to WordEmbeddingLoader's documentation!
 ===============================================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+      :glob:
+      :caption: Modules
+      :maxdepth: 4
 
+      modules/*
 
 
 Indices and tables
