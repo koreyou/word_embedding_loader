@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function
 
+import StringIO
+import warnings
+
 import pytest
 import numpy as np
 from numpy.testing import assert_array_equal
 
 import word_embedding_loader.loader.word2vec_text as word2vec
+from word_embedding_loader import ParseError, ParseWarning
 
 
 @pytest.mark.parametrize("keep_order", [True, False])
@@ -44,3 +48,29 @@ def test_check_valid():
     assert not word2vec.check_valid(
         u"the 0.418 0.24968 -0.41242 0.1217",
         u", 0.013441 0.23682 -0.16899 0.40951")
+
+
+def test_load_fail():
+    f = StringIO.StringIO(u"""3 2
+</s> 0.080054 0.088388
+the -1.420859 1.156857
+日本語 0.10951""".encode('utf-8'))
+    with pytest.raises(ParseError):
+        word2vec.load(f)
+
+
+def test_load_warn():
+    f = StringIO.StringIO(u"""3 2
+</s> 0.080054 0.088388
+the -1.420859 1.156857""".encode('utf-8'))
+
+    with warnings.catch_warnings(record=True) as w:
+        # Cause all warnings to always be triggered.
+        warnings.simplefilter("always")
+        # Trigger a warning.
+        arr, vocab = word2vec.load(f)
+        # Verify some things
+        assert len(w) == 1
+        assert issubclass(w[-1].category, ParseWarning)
+    assert len(vocab) == 2
+    assert len(arr) == 2

@@ -5,6 +5,8 @@ from collections import OrderedDict
 
 import numpy as np
 
+from word_embedding_loader import ParseError, parse_warn
+
 
 def check_valid(line0, line1):
     data = line0.strip().split(' ')
@@ -33,13 +35,22 @@ def load(fin, vocab_list=None, dtype=np.float32, keep_order=False, max_vocab=Non
     for line in fin:
         if max_vocab is not None and i >= max_vocab:
             break
-        token, v = _parse_line(line, dtype)
+        try:
+            token, v = _parse_line(line, dtype)
+        except (ValueError, IndexError):
+            raise ParseError('Parsing error in line: %s' % line)
         if vocab_list is not None and token not in vocab_list:
+            continue
+        if token in vocab:
+            parse_warn('Duplicated vocabulary %s' % token.encode(encoding))
             continue
         if arr is None:
             arr = np.array(v, dtype=dtype).reshape(1, -1)
         else:
+            if arr.shape[1] != len(v):
+                raise ParseError('Vector size did not match in line: %s' % line)
             arr = np.append(arr, [v], axis=0)
+
         if encoding is not None:
             token = token.decode(encoding)
         vocab[token] = i

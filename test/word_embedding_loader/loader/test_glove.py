@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function
 
+import StringIO
+
 import pytest
 import numpy as np
 from numpy.testing import assert_array_equal
 
 import word_embedding_loader.loader.glove as glove
+from word_embedding_loader import ParseError
 
 
 @pytest.mark.parametrize("keep_order", [True, False])
@@ -43,3 +46,11 @@ def test_check_valid():
     assert glove.check_valid(u"the 0.418 0.24968 -0.41242 0.1217",
                              u", 0.013441 0.23682 -0.16899 0.40951")
     assert not glove.check_valid(u"2 4", u"the 0.418 0.24968 -0.41242 0.1217")
+
+
+def test_load_fail():
+    f = StringIO.StringIO(u"""the 0.418 0.24968 -0.41242 0.1217
+, 0.013441 0.23682 0.40951
+日本語 0.15164 0.30177 -0.16763 0.17684""".encode('utf-8'))
+    with pytest.raises(ParseError):
+        glove.load(f)

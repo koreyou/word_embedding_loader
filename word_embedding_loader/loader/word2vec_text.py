@@ -5,6 +5,7 @@ from collections import OrderedDict
 
 import numpy as np
 
+from word_embedding_loader import ParseError, parse_warn
 
 def check_valid(line0, line1):
     data0 = line0.split(' ')
@@ -20,9 +21,12 @@ def check_valid(line0, line1):
 
 
 def _parse_line(line, dtype):
-    data = line.strip().split(' ')
-    token = data[0]
-    v = map(dtype, data[1:])
+    try:
+        data = line.strip().split(' ')
+        token = data[0]
+        v = map(dtype, data[1:])
+    except (ValueError, IndexError):
+        raise ParseError('Parsing error in line: %s' % line)
     return token, v
 
 
@@ -37,12 +41,22 @@ def load(fin, vocab_list=None, dtype=np.float32, keep_order=False, max_vocab=Non
         words = min(max_vocab, words)
     size = int(data[1])
     arr = np.empty((words, size), dtype=dtype)
-    for i, line in enumerate(fin):
+    i = 0
+    for n_line, line in enumerate(fin):
         if max_vocab is not None and i >= max_vocab:
             break
         token, v = _parse_line(line, dtype)
-        arr[i, :] = v
+        if len(v) != size:
+            raise ParseError('Vector size did not match in line: %s' % line)
         if encoding is not None:
             token = token.decode(encoding, errors=errors)
+        if token in vocab:
+            parse_warn('Duplicated vocabulary %s' % token.encode(encoding))
+            continue
+        arr[i, :] = v
         vocab[token] = i
+        i += 1
+    if n_line + 1 != words:
+        parse_warn('EOF before the defined size (read %d, expected%d)' % (i, words))
+    arr = arr[:i, :]
     return arr, vocab
