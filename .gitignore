@@ -19,6 +19,8 @@
 .eggs/
 *.egg-info/
 build/
+doc/source/modules/
+doc/build/
 
 ###### Python debris ########
 
