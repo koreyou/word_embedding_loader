@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function
 
-import codecs
-
 import numpy as np
 
 from word_embedding_loader.loader import glove, word2vec_text, word2vec_bin
@@ -38,8 +36,8 @@ def _classify_format(f):
 
 
 class WordEmbedding(object):
-    def __init__(self, path, dtype=np.float32, max_size=-1, format=None,
-                 keep_order=False, encoding='utf-8'):
+    def __init__(self, path, dtype=np.float32, max_vocab=None, format=None,
+                 keep_order=False, encoding='utf-8', unicode_errors='strict'):
         """
         Load pretrained word embedding from a file.
 
@@ -55,7 +53,7 @@ class WordEmbedding(object):
                 file.
 
         """
-        with codecs.open(path, mode='r', encoding=encoding) as f:
+        with open(path, mode='r') as f:
             if format is None:
                 loader = _classify_format(f)
             else:
@@ -67,7 +65,9 @@ class WordEmbedding(object):
                     loader = word2vec_text
                 else:
                     raise NameError('Unknown format "%s"' % format)
-            arr, vocab = loader.load(f, dtype=dtype, keep_order=keep_order)
+            arr, vocab = loader.load(
+                f, max_vocab=max_vocab, dtype=dtype, keep_order=keep_order,
+                unicode_errors=unicode_errors, encoding=encoding)
         self.vectors = arr
         self.vocab = vocab
 

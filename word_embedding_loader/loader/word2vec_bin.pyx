@@ -45,7 +45,7 @@ cdef _load_impl(FILE *f, long long words, long long size, bool keep_order,
 
 
 def load(fin, dtype=np.float32, keep_order=False, max_vocab=None,
-         encoding='utf-8', errors='strict'):
+         encoding='utf-8', unicode_errors='strict'):
     cdef FILE *f = fdopen(fin.fileno(), 'rb') # attach the stream
     if (f) == NULL:
        raise IOError()
@@ -57,6 +57,6 @@ def load(fin, dtype=np.float32, keep_order=False, max_vocab=None,
     else:
         words = min(max_vocab, words)
     ret = _load_impl(f, words, size, keep_order, encoding,
-                     encoding is not None, errors)
+                     encoding is not None, unicode_errors)
     arr, vocabs = ret
     return arr.astype(dtype), vocabs

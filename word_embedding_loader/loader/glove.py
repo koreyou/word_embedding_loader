@@ -28,7 +28,7 @@ def _parse_line(line, dtype):
 
 
 def load(fin, dtype=np.float32, keep_order=False, max_vocab=None,
-         encoding='utf-8'):
+         encoding='utf-8', unicode_errors='strict'):
     vocab = OrderedDict() if keep_order else dict()
     arr = None
     i = 0
@@ -48,9 +48,8 @@ def load(fin, dtype=np.float32, keep_order=False, max_vocab=None,
             if arr.shape[1] != len(v):
                 raise ParseError('Vector size did not match in line: %s' % line)
             arr = np.append(arr, [v], axis=0)
-
         if encoding is not None:
-            token = token.decode(encoding)
+            token = token.decode(encoding, errors=unicode_errors)
         vocab[token] = i
         i += 1
     return arr, vocab

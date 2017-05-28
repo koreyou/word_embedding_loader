@@ -31,7 +31,7 @@ def _parse_line(line, dtype):
 
 
 def load(fin, dtype=np.float32, keep_order=False, max_vocab=None,
-         encoding='utf-8', errors='strict'):
+         encoding='utf-8', unicode_errors='strict'):
     vocab = OrderedDict() if keep_order else dict()
     line = fin.next()
     data = line.strip().split(' ')
@@ -49,7 +49,7 @@ def load(fin, dtype=np.float32, keep_order=False, max_vocab=None,
         if len(v) != size:
             raise ParseError('Vector size did not match in line: %s' % line)
         if encoding is not None:
-            token = token.decode(encoding, errors=errors)
+            token = token.decode(encoding, errors=unicode_errors)
         if token in vocab:
             parse_warn('Duplicated vocabulary %s' % token.encode(encoding))
             continue
