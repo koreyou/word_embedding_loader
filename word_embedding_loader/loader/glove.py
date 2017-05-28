@@ -7,7 +7,7 @@ import numpy as np
 
 
 def check_valid(line0, line1):
-    data = line0.strip().split(u' ')
+    data = line0.strip().split(' ')
     if len(data) <= 2:
         return False
     # check if data[2:] is float values
@@ -19,13 +19,14 @@ def check_valid(line0, line1):
 
 
 def _parse_line(line, dtype):
-    data = line.strip().split(u' ')
+    data = line.strip().split(' ')
     token = data[0]
     v = map(dtype, data[1:])
     return token, v
 
 
-def load(fin, vocab_list=None, dtype=np.float32, keep_order=False, max_vocab=None):
+def load(fin, vocab_list=None, dtype=np.float32, keep_order=False, max_vocab=None,
+         encoding='utf-8'):
     vocab = OrderedDict() if keep_order else dict()
     arr = None
     i = 0
@@ -39,6 +40,8 @@ def load(fin, vocab_list=None, dtype=np.float32, keep_order=False, max_vocab=Non
             arr = np.array(v, dtype=dtype).reshape(1, -1)
         else:
             arr = np.append(arr, [v], axis=0)
+        if encoding is not None:
+            token = token.decode(encoding)
         vocab[token] = i
         i += 1
     return arr, vocab

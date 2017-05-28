@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function
 
 import numpy as np
@@ -13,7 +14,7 @@ def test_load(word2vec_bin_file, keep_order):
         max_vocab=None)
     assert u'</s>' in vocab
     assert u'the' in vocab
-    assert u'of' in vocab
+    assert u'日本語' in vocab
     assert len(vocab) == 3
     assert len(arr) == 3
     assert arr.dtype == np.float32
@@ -22,7 +23,7 @@ def test_load(word2vec_bin_file, keep_order):
                     np.array([0.08005371, 0.08838806, -0.07660522,
                               -0.06556091, 0.02733154], dtype=np.float32),
                     atol=1e-8)
-    assert_allclose(arr[vocab[u'of']],
+    assert_allclose(arr[vocab[u'日本語']],
                     np.array([-1.67798984, -0.02645044, -0.18966547,
                               1.16504729, -1.39292037], dtype=np.float32),
                     atol=1e-8)
@@ -39,7 +40,7 @@ def test_load_order(word2vec_bin_file):
     vocab_list = vocab.keys()
     assert vocab_list[0] == u'</s>'
     assert vocab_list[1] == u'the'
-    assert vocab_list[2] == u'of'
+    assert vocab_list[2] == u'日本語'
 
 
 def test_check_valid():

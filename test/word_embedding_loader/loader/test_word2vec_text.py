@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function
 
-from collections import OrderedDict
-
 import pytest
 import numpy as np
 from numpy.testing import assert_array_equal
@@ -16,6 +14,7 @@ def test_load(word2vec_text_file, keep_order):
                                dtype=np.float32, keep_order=keep_order)
     assert u'</s>' in vocab
     assert u'the' in vocab
+    assert u'日本語' in vocab
     assert len(vocab) == 3
     assert len(arr) == 3
     assert arr.dtype == np.float32
@@ -25,7 +24,7 @@ def test_load(word2vec_text_file, keep_order):
     assert_array_equal(arr[vocab[u'the']],
                        np.array([-1.420859, 1.156857],
                                 dtype=np.float32))
-    assert_array_equal(arr[vocab[u'a']],
+    assert_array_equal(arr[vocab[u'日本語']],
                        np.array([-0.16799, 0.10951],
                                 dtype=np.float32))
 
@@ -36,7 +35,7 @@ def test_load_order(word2vec_text_file):
     vocab_list = vocab.keys()
     assert vocab_list[0] == u'</s>'
     assert vocab_list[1] == u'the'
-    assert vocab_list[2] == u'a'
+    assert vocab_list[2] == u'日本語'
 
 
 def test_check_valid():

@@ -14,7 +14,7 @@ def test_load(glove_file, keep_order):
                             keep_order=keep_order, max_vocab=None)
     assert u'the' in vocab
     assert u',' in vocab
-    assert u'.' in vocab
+    assert u'日本語' in vocab
     assert len(vocab) == 3
     assert len(arr) == 3
     assert arr.dtype == np.float32
@@ -25,7 +25,7 @@ def test_load(glove_file, keep_order):
     assert_array_equal(arr[vocab[u',']],
                        np.array([0.013441, 0.23682, -0.16899, 0.40951],
                                 dtype=np.float32))
-    assert_array_equal(arr[vocab[u'.']],
+    assert_array_equal(arr[vocab[u'日本語']],
                        np.array([0.15164, 0.30177, -0.16763, 0.17684],
                                 dtype=np.float32))
 
@@ -36,7 +36,7 @@ def test_load_order(glove_file):
     vocab_list = vocab.keys()
     assert vocab_list[0] == u'the'
     assert vocab_list[1] == u','
-    assert vocab_list[2] == u'.'
+    assert vocab_list[2] == u'日本語'
 
 
 def test_check_valid():

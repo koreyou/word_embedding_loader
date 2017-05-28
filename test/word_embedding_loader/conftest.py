@@ -11,7 +11,7 @@ import pytest
 def glove_file():
     f = StringIO.StringIO(u"""the 0.418 0.24968 -0.41242 0.1217
 , 0.013441 0.23682 -0.16899 0.40951
-. 0.15164 0.30177 -0.16763 0.17684""")
+日本語 0.15164 0.30177 -0.16763 0.17684""".encode('utf-8'))
     yield f
     f.close()
 
@@ -29,7 +29,7 @@ def word2vec_text_file():
     f = StringIO.StringIO(u"""3 2
 </s> 0.080054 0.088388
 the -1.420859 1.156857
-a -0.16799 0.10951""")
+日本語 -0.16799 0.10951""".encode('utf-8'))
     yield f
     f.close()
 
@@ -38,6 +38,6 @@ a -0.16799 0.10951""")
 def vocab_file():
     f = StringIO.StringIO(u"""</s> 0
 the 1061396
-of 593677""")
+日本語 593677""".encode('utf-8'))
     yield f
     f.close()
