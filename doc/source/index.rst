@@ -11,7 +11,7 @@ Welcome to WordEmbeddingLoader's documentation!
       :caption: Modules
       :maxdepth: 4
 
-      modules/*
+      modules/word_embedding_loader.rst
 
 
 Indices and tables
