@@ -1,4 +1,11 @@
 # -*- coding: utf-8 -*-
+u"""
+Low level API for loading of word embedding file that was implemented in
+`GloVe <https://nlp.stanford.edu/projects/glove/>`_, Global Vectors for Word
+Representation, by Jeffrey Pennington, Richard Socher, Christopher D. Manning
+from Stanford NLP group.
+"""
+
 from __future__ import absolute_import, print_function
 
 from collections import OrderedDict
@@ -9,6 +16,17 @@ from word_embedding_loader import ParseError, parse_warn
 
 
 def check_valid(line0, line1):
+    """
+    Check if a file is valid Glove format.
+
+    Args:
+        line0 (str): First line of the file
+        line1 (str): Second line of the file
+
+    Returns:
+        boo: ``True`` if it is valid. ``False`` if it is invalid.
+
+    """
     data = line0.strip().split(' ')
     if len(data) <= 2:
         return False
@@ -29,6 +47,29 @@ def _parse_line(line, dtype):
 
 def load(fin, dtype=np.float32, keep_order=False, max_vocab=None,
          encoding='utf-8', unicode_errors='strict'):
+    u"""
+    Load word embedding file.
+
+    .. warning:: This is an internal implementation. API may change without
+                 notice in the future, so you should use
+                 :class:`word_embedding_loader.word_embedding.WordEmbedding`
+
+    Args:
+        fin (File): File object to read. File should be open for reading ascii.
+        dtype (numpy.dtype): Element data type to use for the array.
+        keep_order (bool): Keep the vacabulary order in the file.
+        max_vocab (int): Number of vocabulary to read.
+        encoding (str): Encoding of the input file as defined in ``codecs``
+            module of Python standard library.
+        unicode_errors (str): Set the error handling scheme. The default error
+            handler is 'strict' meaning that encoding errors raise ValueError.
+            Refer to ``codecs`` module for more information.
+
+    Returns:
+        numpy.ndarray: Word embedding representation vectors
+        dict: Mapping from words to vector indices.
+
+    """
     vocab = OrderedDict() if keep_order else dict()
     arr = None
     i = 0

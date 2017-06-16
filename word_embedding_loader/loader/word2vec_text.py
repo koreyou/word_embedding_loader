@@ -1,4 +1,11 @@
 # -*- coding: utf-8 -*-
+u"""
+Low level API for loading of word embedding file that was implemented in
+`word2vec <https://code.google.com/archive/p/word2vec/>`_, by Mikolov.
+This implementation is for word embedding file created with ``-binary 0``
+option (the default).
+"""
+
 from __future__ import absolute_import, print_function
 
 from collections import OrderedDict
@@ -8,6 +15,9 @@ import numpy as np
 from word_embedding_loader import ParseError, parse_warn
 
 def check_valid(line0, line1):
+    u"""
+    Check :func:`word_embedding_loader.loader.glove.check_valid` for the API.
+    """
     data0 = line0.split(' ')
     if len(data0) != 2:
         return False
@@ -32,6 +42,9 @@ def _parse_line(line, dtype):
 
 def load(fin, dtype=np.float32, keep_order=False, max_vocab=None,
          encoding='utf-8', unicode_errors='strict'):
+    u"""
+    Refer to :func:`word_embedding_loader.loader.glove.load` for the API.
+    """
     vocab = OrderedDict() if keep_order else dict()
     line = fin.next()
     data = line.strip().split(' ')

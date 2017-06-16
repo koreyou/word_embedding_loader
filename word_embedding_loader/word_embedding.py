@@ -38,20 +38,17 @@ def _classify_format(f):
 class WordEmbedding(object):
     def __init__(self, path, dtype=np.float32, max_vocab=None, format=None,
                  keep_order=False, encoding='utf-8', unicode_errors='strict'):
-        """
+        u"""
         Load pretrained word embedding from a file.
 
         Args:
             path:
+            dtype:
+            max_vocab:
             format:
-
-        Returns:
-            numpy.ndarray: Word embedding representation vectors
-            dict: Mapping from words to vector indices.
-            numpy.ndarray or None: Word counts, indexed by the dict.
-                It will be None if word counts information was not provided in the
-                file.
-
+            keep_order:
+            encoding:
+            unicode_errors:
         """
         with open(path, mode='r') as f:
             if format is None:
