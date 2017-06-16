@@ -28,7 +28,7 @@ class BuildDocApiDoc(BuildDoc, object):
         # Run sphinx by calling the main method, '--full' also adds a conf.py
         sphinx.apidoc.main(
             ['', '-f', '-H', metadata.name, '-A', metadata.author,
-             '-V', metadata.version, '-R', metadata.version, '-T',
+             '-V', metadata.version, '-R', metadata.version, '-T', '-M',
              '-o', os.path.join('doc', 'source', 'modules'), src_dir])
         super(BuildDocApiDoc, self).run()
 
