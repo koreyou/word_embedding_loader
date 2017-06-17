@@ -12,6 +12,11 @@ ext_modules = [
         "word_embedding_loader.loader.word2vec_bin",
         ["word_embedding_loader/loader/word2vec_bin.pyx"],
         include_dirs=[numpy.get_include()]
+    ),
+    Extension(
+        "word_embedding_loader.saver.word2vec_bin",
+        ["word_embedding_loader/saver/word2vec_bin.pyx"],
+        include_dirs=[numpy.get_include()], language="c++"
     )
 ]
 

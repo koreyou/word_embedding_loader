@@ -35,3 +35,5 @@ doc/build/
 
 word_embedding_loader/loader/word2vec_bin.c
 word_embedding_loader/loader/word2vec_bin.so
+word_embedding_loader/saver/word2vec_bin.cpp
+word_embedding_loader/saver/word2vec_bin.so
