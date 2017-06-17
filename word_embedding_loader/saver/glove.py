@@ -13,15 +13,11 @@ def _write_line(f, vec, word, encoding, errors):
     f.write('{} {}'.format(word.encode(encoding, errors=errors), v_text))
 
 
-def save(f, arr, vocab, counts=None, encoding='utf-8',
-         unicode_errors='strict'):
+def save(f, arr, vocab, counts=None, encoding='utf-8', unicode_errors='strict'):
     """
     Save word embedding file.
 
-    .. warning:: This is an internal implementation. API may change without
-                 notice in the future, so you should use
-                 :class:`word_embedding_loader.word_embedding.WordEmbedding`
-
+    Args:
         f (File): File to write the vectors. File should be open for writing
             ascii.
         arr (numpy.array): Numpy array with ``float`` dtype.

@@ -20,6 +20,9 @@ ext_modules = [
     )
 ]
 
+for e in ext_modules:
+    e.cython_directives = {"embedsignature": True}
+
 class BuildDocApiDoc(BuildDoc, object):
     # inherit from object to enable 'super'
     user_options = []

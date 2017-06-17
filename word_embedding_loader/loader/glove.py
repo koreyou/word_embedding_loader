@@ -50,10 +50,6 @@ def load(fin, dtype=np.float32, keep_order=False, max_vocab=None,
     u"""
     Load word embedding file.
 
-    .. warning:: This is an internal implementation. API may change without
-                 notice in the future, so you should use
-                 :class:`word_embedding_loader.word_embedding.WordEmbedding`
-
     Args:
         fin (File): File object to read. File should be open for reading ascii.
         dtype (numpy.dtype): Element data type to use for the array.
