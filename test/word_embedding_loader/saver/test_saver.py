@@ -15,9 +15,9 @@ import word_embedding_loader.saver as saver
     (saver.word2vec_bin, loader.word2vec_bin),
     (saver.word2vec_text, loader.word2vec_text)
 ])
-def test_load(word_embedding, mod, tmpdir):
+def test_load(word_embedding_data, mod, tmpdir):
     _saver, _loader = mod
-    arr_input, vocab_input = word_embedding
+    arr_input, vocab_input = word_embedding_data
 
     with open(tmpdir.join('output.txt').strpath, 'a+') as f:
         _saver.save(f, arr_input, vocab_input)

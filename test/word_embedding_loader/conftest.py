@@ -50,7 +50,7 @@ the 1061396
 
 
 @pytest.fixture
-def word_embedding():
+def word_embedding_data():
     vocab = dict((
         (u'</s>', 0),
         (u'the', 1),
