@@ -4,7 +4,6 @@ from __future__ import absolute_import, print_function
 __all__ = ["WordEmbedding"]
 
 import warnings
-from collections import OrderedDict
 
 import numpy as np
 
@@ -90,17 +89,15 @@ class WordEmbedding(object):
 
     Args:
         vectors (numpy.ndarray): Word embedding representation vectors
-        vocab (dict or OrderedDict): Mapping from words (unicode) to vector
-            indices (int). The class respect the order if ``OrderedDict`` is
-            given.
+        vocab (dict): Mapping from words (unicode) to vector
+            indices (int).
         freqs (dict): Mapping from words (unicode) to word frequency counts
             (int).
 
     Attributes:
         vectors (numpy.ndarray): Word embedding vectors in shape of
             ``(vocabulary size, feature dimension)``.
-        vocab (dict or OrderedDict): Mapping from words (unicode) to vector
-            indices (int).
+        vocab (dict): Mapping from words (unicode) to vector indices (int).
         freqs (dict or None): Mapping from words (unicode) to frequency counts
             (int).
 
@@ -123,7 +120,7 @@ class WordEmbedding(object):
 
     @classmethod
     def load(cls, path, vocab=None, dtype=np.float32, max_vocab=None,
-             format=None, binary=False, keep_order=False, encoding='utf-8',
+             format=None, binary=False, encoding='utf-8',
              unicode_errors='strict'):
         u"""
         Load pretrained word embedding from a file.
@@ -149,8 +146,6 @@ class WordEmbedding(object):
                 `word2vec <https://code.google.com/archive/p/word2vec/>`_ with
                 ``-binary 1`` option. If ``format`` is ``'glove'`` or ``None``,
                 this argument is simply ignored
-            keep_order (bool): Keep the vocabulary order in the file. It is
-                ignored if ``vocab`` is given.
             encoding (str): Encoding of the input file as defined in ``codecs``
                 module of Python standard library.
             unicode_errors (str): Set the error handling scheme. The default
@@ -162,20 +157,14 @@ class WordEmbedding(object):
         """
         freqs = None
         if vocab is not None:
-            if keep_order:
-                warnings.warn(
-                    "Argument keep_order=True is ignored because vocab is given",
-                    UserWarning)
             with open(vocab, mode='r') as f:
                 freqs = loader.vocab.load_vocab(
                     f, encoding=encoding, errors=unicode_errors)
             # Create vocab from freqs
             # [:None] gives all the list member
-            vocab = OrderedDict(
-                ((k, i) for i, (k, v) in enumerate(
+            vocab = {k: i for i, (k, v) in enumerate(
                     sorted(freqs.iteritems(),
-                           key=lambda (k, v): v, reverse=True)[:max_vocab]
-                )))
+                           key=lambda (k, v): v, reverse=True)[:max_vocab])}
 
         with open(path, mode='r') as f:
             if format is None:
@@ -189,7 +178,7 @@ class WordEmbedding(object):
                 v = vocab
             else:
                 arr, v = mod.loader.load(
-                    f, max_vocab=max_vocab, dtype=dtype, keep_order=keep_order,
+                    f, max_vocab=max_vocab, dtype=dtype,
                     unicode_errors=unicode_errors, encoding=encoding)
         obj = cls(arr, v, freqs)
         obj._load_cond = LoadCondition(mod, encoding, unicode_errors)
@@ -223,10 +212,17 @@ class WordEmbedding(object):
         else:
             mod = _select_module(format, binary)
 
+        def _mapper(item):
+            key, value = item
+            return (key.encode(encoding, errors=unicode_errors), value)
+
+        if self.freqs is None:
+            itr = map(_mapper, sorted(self.vocab.iteritems(), key=lambda (k, v): v))
+        else:
+            itr = map(_mapper, sorted(self.vocab.iteritems(), key=lambda (k, v): self.freqs[k], reverse=True))
+
         with open(path, mode='w') as f:
-            mod.saver.save(
-                f, self.vectors, self.vocab, counts=None,
-                encoding=encoding, unicode_errors=unicode_errors)
+            mod.saver.save(f, self.vectors, itr)
 
     def __len__(self):
         return len(self.vectors)

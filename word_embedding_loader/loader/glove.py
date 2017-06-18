@@ -8,8 +8,6 @@ from Stanford NLP group.
 
 from __future__ import absolute_import, print_function
 
-from collections import OrderedDict
-
 import numpy as np
 
 from word_embedding_loader import ParseError, parse_warn
@@ -54,7 +52,8 @@ def load_with_vocab(
 
     Args:
         fin (File): File object to read. File should be open for reading ascii.
-        vocab (dict): Mapping from words to vector indices.
+        vocab (dict): Mapping from words (``unicode``) to vector indices
+            (``int``).
         dtype (numpy.dtype): Element data type to use for the array.
         encoding (str): Encoding of the input file as defined in ``codecs``
             module of Python standard library.
@@ -81,15 +80,14 @@ def load_with_vocab(
     return arr
 
 
-def load(fin, dtype=np.float32, keep_order=False, max_vocab=None,
-         encoding='utf-8', unicode_errors='strict'):
+def load(fin, dtype=np.float32, max_vocab=None, encoding='utf-8',
+         unicode_errors='strict'):
     u"""
     Load word embedding file.
 
     Args:
         fin (File): File object to read. File should be open for reading ascii.
         dtype (numpy.dtype): Element data type to use for the array.
-        keep_order (bool): Keep the vacabulary order in the file.
         max_vocab (int): Number of vocabulary to read.
         encoding (str): Encoding of the input file as defined in ``codecs``
             module of Python standard library.
@@ -102,7 +100,7 @@ def load(fin, dtype=np.float32, keep_order=False, max_vocab=None,
         dict: Mapping from words to vector indices.
 
     """
-    vocab = OrderedDict() if keep_order else dict()
+    vocab = {}
     arr = None
     i = 0
     for line in fin:

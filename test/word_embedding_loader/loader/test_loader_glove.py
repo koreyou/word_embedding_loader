@@ -11,15 +11,18 @@ import word_embedding_loader.loader.glove as glove
 from word_embedding_loader import ParseError
 
 
-@pytest.mark.parametrize("keep_order", [True, False])
-def test_load(glove_file, keep_order):
-    arr, vocab = glove.load(glove_file, dtype=np.float32, keep_order=keep_order)
+def test_load(glove_file):
+    arr, vocab = glove.load(glove_file, dtype=np.float32)
     assert u'the' in vocab
     assert u',' in vocab
     assert u'日本語' in vocab
     assert len(vocab) == 3
     assert len(arr) == 3
     assert arr.dtype == np.float32
+
+    assert vocab[u'the'] == 0
+    assert vocab[u','] == 1
+    assert vocab[u'日本語'] == 2
 
     assert_array_equal(arr[vocab[u'the']],
                        np.array([0.418, 0.24968, -0.41242, 0.1217],
@@ -30,14 +33,6 @@ def test_load(glove_file, keep_order):
     assert_array_equal(arr[vocab[u'日本語']],
                        np.array([0.15164, 0.30177, -0.16763, 0.17684],
                                 dtype=np.float32))
-
-
-def test_load_order(glove_file):
-    arr, vocab = glove.load(glove_file, keep_order=True)
-    vocab_list = vocab.keys()
-    assert vocab_list[0] == u'the'
-    assert vocab_list[1] == u','
-    assert vocab_list[2] == u'日本語'
 
 
 def test_check_valid():

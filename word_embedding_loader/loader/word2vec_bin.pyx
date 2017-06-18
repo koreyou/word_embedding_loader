@@ -80,12 +80,12 @@ def load_with_vocab(
     return ret.astype(dtype)
 
 
-cdef _load_impl(FILE *f, long long words, long long size, bool keep_order,
-                str encoding, bool is_encoded, str errors):
+cdef _load_impl(FILE *f, long long words, long long size, str encoding,
+                bool is_encoded, str errors):
     cdef char ch
     cdef int l
     cdef char[100] vocab
-    vocabs = OrderedDict() if keep_order else dict()
+    vocabs = dict()
     cdef np.ndarray[FLOAT, ndim=2, mode="c"] arr = np.zeros([words, size], dtype=np.float32)
     cdef int i = 0
     while True:
@@ -102,7 +102,7 @@ cdef _load_impl(FILE *f, long long words, long long size, bool keep_order,
     return arr, vocabs
 
 
-def load(fin, dtype=np.float32, keep_order=False, max_vocab=None,
+def load(fin, dtype=np.float32, max_vocab=None,
          encoding='utf-8', unicode_errors='strict'):
     u"""
     Refer to :func:`word_embedding_loader.loader.glove.load` for the API.
@@ -117,7 +117,7 @@ def load(fin, dtype=np.float32, keep_order=False, max_vocab=None,
         words = words
     else:
         words = min(max_vocab, words)
-    ret = _load_impl(f, words, size, keep_order, encoding,
-                     encoding is not None, unicode_errors)
+    ret = _load_impl(f, words, size, encoding, encoding is not None,
+                     unicode_errors)
     arr, vocabs = ret
     return arr.astype(dtype), vocabs

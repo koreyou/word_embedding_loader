@@ -2,7 +2,6 @@
 from __future__ import absolute_import, print_function
 
 import StringIO
-from collections import OrderedDict
 
 import pytest
 import numpy as np
@@ -40,20 +39,12 @@ def test_WordEmbedding___init__():
     assert len(obj) == 123
     assert obj.size == 49
 
-    # Check no assertion raised with OrderedDict
-    word_embedding.WordEmbedding(
-        np.zeros((2, 3), dtype=np.float32),
-        OrderedDict.fromkeys(range(2), 0)
-    )
 
-
-@pytest.mark.parametrize("keep_order", [True, False])
-def test_WordEmbedding___load__(glove_file, keep_order):
+def test_WordEmbedding___load__(glove_file):
     """ Check one instance of loading; we assume that each loader is tested
     thoroughly in other unit test.
     """
-    obj = word_embedding.WordEmbedding.load(
-        glove_file.name, keep_order=keep_order)
+    obj = word_embedding.WordEmbedding.load(glove_file.name)
     vocab = obj.vocab
     arr = obj.vectors
     assert u'the' in vocab
@@ -117,11 +108,11 @@ def test_WordEmbedding___load___vocab_maxvocab(word2vec_text_file, vocab_file):
 
 
 def test_WordEmbedding___save__(word_embedding_data, tmpdir):
-    arr_input, vocab_input = word_embedding_data
-    obj = word_embedding.WordEmbedding(arr_input, vocab_input)
+    arr_input, _, vocab_expected = word_embedding_data
+    obj = word_embedding.WordEmbedding(arr_input, vocab_expected)
     tmp_path = tmpdir.join('WordEmbedding__save.txt').strpath
     obj.save(tmp_path, format="word2vec", binary=True)
     with open(tmp_path, 'r') as f:
         arr, vocab = loader.word2vec_bin.load(f, dtype=np.float32)
     assert_array_equal(arr, arr_input)
-    assert vocab_input == vocab
+    assert vocab_expected == vocab

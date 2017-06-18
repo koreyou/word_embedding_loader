@@ -50,13 +50,18 @@ def vocab_file(tmpdir):
 
 @pytest.fixture
 def word_embedding_data():
-    vocab = dict((
-        (u'</s>', 0),
-        (u'the', 1),
-        (u'日本語', 2)
-    ))
+    vocab = (
+        ('</s>', 0),
+        ('the', 1),
+        (u'日本語'.encode('utf-8'), 2)
+    )
+    vocab_dict = {
+        u'</s>': 0,
+        u'the': 1,
+        u'日本語': 2
+    }
     arr = np.array(
         [[0.418, 0.24968, -0.41242, 0.1217],
          [0.013441, 0.23682, -0.16899, 0.40951],
          [0.15164, 0.30177, -0.16763, 0.17684]], dtype=np.float32)
-    return arr, vocab
+    return arr, vocab, vocab_dict

@@ -41,42 +41,14 @@ cdef int _save_impl(FILE *f, np.ndarray[FLOAT, ndim=2, mode="c"] arr, vector[pai
     return ret
 
 
-def _mapper(encoding, errors):
-    def body(item):
-        key, value = item
-        return (key.encode(encoding, errors=errors), value)
-    return body
-
-
-def _count_sorter(counts):
-    def body(item):
-        key, value = item
-        return counts(key)
-    return body
-
-
-def _value_sort(item):
-    key, value = item
-    return value
-
-
 def save(f, arr, vocab, counts=None, encoding='utf-8', unicode_errors='strict'):
     u"""
     Refer to :func:`word_embedding_loader.saver.glove.save` for the API.
     """
-    vocab = map(_mapper(encoding, unicode_errors), vocab.iteritems())
-    if counts is None:
-        if isinstance(vocab, OrderedDict):
-            itr = vocab
-        else:
-            itr = sorted(vocab, key=_value_sort)
-    else:
-        itr = sorted(vocab, key=_count_sorter(counts), reverse=True)
-
     cdef long long size = arr.shape[1]
     cdef long long words = arr.shape[0]
     cdef np.ndarray[FLOAT, ndim=2, mode="c"] carr = arr
-    cdef vector[pair[string, int]] cvocab = itr
+    cdef vector[pair[string, int]] cvocab = vocab
 
     cdef FILE *fin = fdopen(f.fileno(), 'w') # attach the stream
     if (fin) == NULL:

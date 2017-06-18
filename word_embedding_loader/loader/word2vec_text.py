@@ -8,8 +8,6 @@ option (the default).
 
 from __future__ import absolute_import, print_function
 
-from collections import OrderedDict
-
 import numpy as np
 
 from word_embedding_loader import ParseError, parse_warn
@@ -31,6 +29,7 @@ def check_valid(line0, line1):
 
 
 def _parse_line(line, dtype):
+    # Split and cast a line
     try:
         data = line.strip().split(' ')
         token = data[0]
@@ -61,7 +60,7 @@ def load_with_vocab(
     size = int(data[1])
     arr = np.empty((len(vocab), size), dtype=dtype)
     arr.fill(np.NaN)
-    for n_line, line in enumerate(fin):
+    for line in fin:
         token, v = _load_line(line, dtype, size, encoding, unicode_errors)
         if token in vocab:
             arr[vocab[token], :] = v
@@ -70,12 +69,12 @@ def load_with_vocab(
     return arr
 
 
-def load(fin, dtype=np.float32, keep_order=False, max_vocab=None,
+def load(fin, dtype=np.float32, max_vocab=None,
          encoding='utf-8', unicode_errors='strict'):
     u"""
     Refer to :func:`word_embedding_loader.loader.glove.load` for the API.
     """
-    vocab = OrderedDict() if keep_order else dict()
+    vocab = {}
     line = fin.next()
     data = line.strip().split(' ')
     assert len(data) == 2
