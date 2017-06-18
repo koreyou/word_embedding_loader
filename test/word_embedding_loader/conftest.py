@@ -42,7 +42,6 @@ the -1.420859 1.156857
 def vocab_file(tmpdir):
     with open(tmpdir.join('glove.txt').strpath, 'a+') as f:
         f.write(u"""</s> 0
-the 1061396
 日本語 593677""".encode('utf-8'))
         f.flush()
         f.seek(0)

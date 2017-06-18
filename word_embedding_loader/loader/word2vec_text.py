@@ -40,6 +40,36 @@ def _parse_line(line, dtype):
     return token, v
 
 
+def _load_line(line, dtype, size, encoding, unicode_errors):
+    # Parse line and do a sanity check
+    token, v = _parse_line(line, dtype)
+    if len(v) != size:
+        raise ParseError('Vector size did not match in line: %s' % line)
+    if encoding is not None:
+        token = token.decode(encoding, errors=unicode_errors)
+    return token, v
+
+
+def load_with_vocab(
+        fin, vocab, dtype=np.float32, encoding='utf-8', unicode_errors='strict'):
+    u"""
+    Refer to :func:`word_embedding_loader.loader.glove.load_with_vocab` for the API.
+    """
+    line = fin.next()
+    data = line.strip().split(' ')
+    assert len(data) == 2
+    size = int(data[1])
+    arr = np.empty((len(vocab), size), dtype=dtype)
+    arr.fill(np.NaN)
+    for n_line, line in enumerate(fin):
+        token, v = _load_line(line, dtype, size, encoding, unicode_errors)
+        if token in vocab:
+            arr[vocab[token], :] = v
+    if np.any(np.isnan(arr)):
+        raise ParseError("Some of vocab was not found in word embedding file")
+    return arr
+
+
 def load(fin, dtype=np.float32, keep_order=False, max_vocab=None,
          encoding='utf-8', unicode_errors='strict'):
     u"""
@@ -58,11 +88,7 @@ def load(fin, dtype=np.float32, keep_order=False, max_vocab=None,
     for n_line, line in enumerate(fin):
         if max_vocab is not None and i >= max_vocab:
             break
-        token, v = _parse_line(line, dtype)
-        if len(v) != size:
-            raise ParseError('Vector size did not match in line: %s' % line)
-        if encoding is not None:
-            token = token.decode(encoding, errors=unicode_errors)
+        token, v = _load_line(line, dtype, size, encoding, unicode_errors)
         if token in vocab:
             parse_warn('Duplicated vocabulary %s' % token.encode(encoding))
             continue

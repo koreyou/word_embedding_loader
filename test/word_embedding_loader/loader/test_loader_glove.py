@@ -52,3 +52,21 @@ def test_load_fail():
 日本語 0.15164 0.30177 -0.16763 0.17684""".encode('utf-8'))
     with pytest.raises(ParseError):
         glove.load(f)
+
+
+def test_load_with_vocab(glove_file):
+    vocab = dict((
+        (u'the', 1),
+        (u'日本語', 0)
+    ))
+
+    arr = glove.load_with_vocab(glove_file, vocab)
+    assert len(arr) == 2
+    assert arr.dtype == np.float32
+    # Machine epsilon is 5.96e-08 for float32
+    assert_array_equal(arr[vocab[u'the']],
+                       np.array([0.418, 0.24968, -0.41242, 0.1217],
+                                dtype=np.float32))
+    assert_array_equal(arr[vocab[u'日本語']],
+                       np.array([0.15164, 0.30177, -0.16763, 0.17684],
+                                dtype=np.float32))

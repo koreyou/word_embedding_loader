@@ -73,3 +73,21 @@ the -1.420859 1.156857""".encode('utf-8'))
         assert issubclass(w[-1].category, ParseWarning)
     assert len(vocab) == 2
     assert len(arr) == 2
+
+
+def test_load_with_vocab(word2vec_text_file):
+    vocab = dict((
+        (u'</s>', 1),
+        (u'日本語', 0)
+    ))
+
+    arr = word2vec.load_with_vocab(word2vec_text_file, vocab)
+    assert len(arr) == 2
+    assert arr.dtype == np.float32
+    # Machine epsilon is 5.96e-08 for float32
+    assert_array_equal(arr[vocab[u'</s>']],
+                       np.array([ 0.080054, 0.088388],
+                                dtype=np.float32))
+    assert_array_equal(arr[vocab[u'日本語']],
+                       np.array([-0.16799, 0.10951],
+                                dtype=np.float32))
