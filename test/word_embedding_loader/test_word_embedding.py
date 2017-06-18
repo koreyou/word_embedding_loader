@@ -22,13 +22,13 @@ the -1.420859 1.156857 0.744776""")
 
 class TestClassifyFormat:
     def test__classify_format_glove(self, glove_file):
-        assert word_embedding._classify_format(glove_file) == word_embedding._glove
+        assert word_embedding.classify_format(glove_file) == word_embedding._glove
 
     def test__classify_format_word2vec_bin(self, word2vec_bin_file):
-        assert word_embedding._classify_format(word2vec_bin_file) == word_embedding._word2vec_bin
+        assert word_embedding.classify_format(word2vec_bin_file) == word_embedding._word2vec_bin
 
     def test__classify_format_word2vec_text(self, word2vec_text_file):
-        assert word_embedding._classify_format(word2vec_text_file) == word_embedding._word2vec_text
+        assert word_embedding.classify_format(word2vec_text_file) == word_embedding._word2vec_text
 
 
 def test_WordEmbedding___init__():

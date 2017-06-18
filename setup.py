@@ -51,8 +51,13 @@ setup(
     version=version,
     packages=['word_embedding_loader', ],
     license='Creative Commons BY',
-    # cmdclass = {'build_ext': build_ext},
     cmdclass = {'build_sphinx': BuildDocApiDoc},
+    install_requires=[
+        'Click',
+    ],
+    entry_points = {
+        'console_scripts': ['word-embedding-loader=word_embedding_loader.cli:cli'],
+    },
     command_options={
         'build_sphinx': {
             'project': ('setup.py', name),

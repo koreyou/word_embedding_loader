@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function
 
-__all__ = ["WordEmbedding"]
+__all__ = ["WordEmbedding", "classify_format"]
 
 import warnings
 
@@ -60,7 +60,19 @@ def _get_two_lines(f):
     return l0, l1
 
 
-def _classify_format(f):
+def classify_format(f):
+    """
+    Determine the format of word embedding file by their content. This operation
+    only looks at the first two lines and does not check the sanity of input
+    file.
+
+    Args:
+        f (Filelike):
+
+    Returns:
+        class
+
+    """
     l0, l1 = _get_two_lines(f)
     if loader.glove.check_valid(l0, l1):
         return _glove
@@ -168,7 +180,7 @@ class WordEmbedding(object):
 
         with open(path, mode='r') as f:
             if format is None:
-                mod = _classify_format(f)
+                mod = classify_format(f)
             else:
                 mod = _select_module(format, binary)
             if vocab is not None:
