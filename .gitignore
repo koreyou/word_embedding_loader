@@ -16,6 +16,7 @@
 # setuptool and py.test
 .cache/
 .coverage
+htmlcov/
 .eggs/
 *.egg-info/
 build/
