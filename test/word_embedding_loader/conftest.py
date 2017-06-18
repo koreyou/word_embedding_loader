@@ -28,7 +28,7 @@ def word2vec_bin_file():
 
 @pytest.fixture
 def word2vec_text_file(tmpdir):
-    with open(tmpdir.join('glove.txt').strpath, 'a+') as f:
+    with open(tmpdir.join('word2vec_text_file.txt').strpath, 'a+') as f:
         f.write(u"""3 2
 </s> 0.080054 0.088388
 the -1.420859 1.156857
@@ -40,7 +40,7 @@ the -1.420859 1.156857
 
 @pytest.fixture
 def vocab_file(tmpdir):
-    with open(tmpdir.join('glove.txt').strpath, 'a+') as f:
+    with open(tmpdir.join('vocab_file.txt').strpath, 'a+') as f:
         f.write(u"""</s> 0
 日本語 593677""".encode('utf-8'))
         f.flush()
