@@ -2,35 +2,31 @@ import os
 
 from setuptools import setup
 from setuptools.extension import Extension
-from Cython.Build import cythonize
-import sphinx.apidoc
-from sphinx.setup_command import BuildDoc
-import numpy
+from setuptools.command.build_py import build_py
 
-ext_modules = [
-    Extension(
-        "word_embedding_loader.loader.word2vec_bin",
-        ["word_embedding_loader/loader/word2vec_bin.pyx"],
-        include_dirs=[numpy.get_include()]
-    ),
-    Extension(
-        "word_embedding_loader.saver.word2vec_bin",
-        ["word_embedding_loader/saver/word2vec_bin.pyx"],
-        include_dirs=[numpy.get_include()], language="c++"
-    )
+
+cython_modules = [
+    ["word_embedding_loader", "loader", "word2vec_bin"],
+    ["word_embedding_loader", "saver", "word2vec_bin"]
 ]
 
-cmdclass = {}
+class BuildPyCommand(build_py):
+    """ Custom build routine """
+    def run(self):
+        import numpy
+        from Cython.Build import cythonize
+        ext_modules = [
+            Extension(
+                '.'.join(mod), ['/'.join(mod) + '.pyx'],
+                include_dirs=[numpy.get_include()], language="c++"
+            ) for mod in cython_modules
+        ]
+        # Add signiture for Sphinx
+        for e in ext_modules:
+            e.cython_directives = {"embedsignature": True}
 
-for e in ext_modules:
-    e.cython_directives = {"embedsignature": True}
-
-
-try:
-    from sphinx.setup_command import BuildDoc
-    cmdclass['build_sphinx'] = BuildDoc
-except ImportError:
-    pass
+        cythonize(ext_modules)
+        build_py.run(self)
 
 
 name = 'WordEmbeddingLoader'
@@ -43,9 +39,10 @@ setup(
     version=version,
     packages=['word_embedding_loader', ],
     license='Creative Commons BY',
-    cmdclass = cmdclass,
+    cmdclass = {'build_py': BuildPyCommand},
     install_requires=[
         'Click',
+        'numpy'
     ],
     entry_points = {
         'console_scripts': ['word-embedding-loader=word_embedding_loader.cli:cli'],
@@ -55,10 +52,12 @@ setup(
             'project': ('setup.py', name),
             'version': ('setup.py', version),
             'release': ('setup.py', release)}},
-    ext_modules=cythonize(ext_modules),
     setup_requires = ['pytest-runner',
                       'sphinx',
                       'sphinxcontrib-napoleon',
-                      'sphinx_rtd_theme'],
-    tests_require = ['pytest', 'pytest-cov']
+                      'sphinx_rtd_theme',
+                      'numpy',
+                      'Cython'
+                      ],
+    tests_require = ['pytest', 'pytest-cov', 'Cython']
 )
