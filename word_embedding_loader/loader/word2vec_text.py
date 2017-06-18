@@ -85,7 +85,7 @@ def load(fin, dtype=np.float32, max_vocab=None,
     arr = np.empty((words, size), dtype=dtype)
     i = 0
     for n_line, line in enumerate(fin):
-        if max_vocab is not None and i >= max_vocab:
+        if i >= words:
             break
         token, v = _load_line(line, dtype, size, encoding, unicode_errors)
         if token in vocab:
@@ -94,7 +94,7 @@ def load(fin, dtype=np.float32, max_vocab=None,
         arr[i, :] = v
         vocab[token] = i
         i += 1
-    if n_line + 1 != words:
-        parse_warn('EOF before the defined size (read %d, expected%d)' % (i, words))
-    arr = arr[:i, :]
+    if i != words:
+        parse_warn('EOF before the defined size (read %d, expected %d)' % (i, words))
+        arr = arr[:i, :]
     return arr, vocab
