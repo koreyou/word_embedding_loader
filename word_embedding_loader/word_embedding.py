@@ -4,6 +4,7 @@ from __future__ import absolute_import, print_function
 __all__ = ["WordEmbedding"]
 
 import warnings
+from collections import OrderedDict
 
 import numpy as np
 
@@ -100,8 +101,11 @@ class WordEmbedding(object):
             ``(vocabulary size, feature dimension)``.
         vocab (dict or OrderedDict): Mapping from words (unicode) to vector
             indices (int).
+        freqs (dict or None): Mapping from words (unicode) to frequency counts
+            (int).
+
     """
-    def __init__(self, vectors, vocab):
+    def __init__(self, vectors, vocab, freqs=None):
         if not isinstance(vectors, np.ndarray):
             raise TypeError(
                 "Expected numpy.ndarray for vectors, %s found." % type(vectors))
@@ -114,17 +118,22 @@ class WordEmbedding(object):
                 (len(vectors), len(vocab)))
         self.vectors = vectors
         self.vocab = vocab
+        self.freqs = freqs
         self._load_cond = None
 
     @classmethod
-    def load(cls, path, dtype=np.float32, max_vocab=None, format=None,
-             binary=False, keep_order=False, encoding='utf-8',
+    def load(cls, path, vocab=None, dtype=np.float32, max_vocab=None,
+             format=None, binary=False, keep_order=False, encoding='utf-8',
              unicode_errors='strict'):
         u"""
         Load pretrained word embedding from a file.
 
         Args:
             path (str): Path of file to load.
+            vocab (str or None): Path to vocabulary file created by word2vec
+                with ``-save-vocab <file>`` option. If vocab is given,
+                :py:attr:`~vectors` and :py:attr:`~vocab` is ordered in
+                descending order of frequency.
             dtype (numpy.dtype): Element data type to use for the array.
             max_vocab (int): Number of vocabulary to read.
             format (str or None): Format of the file. ``'word2vec'`` for file
@@ -140,7 +149,8 @@ class WordEmbedding(object):
                 `word2vec <https://code.google.com/archive/p/word2vec/>`_ with
                 ``-binary 1`` option. If ``format`` is ``'glove'`` or ``None``,
                 this argument is simply ignored
-            keep_order (bool): Keep the vocabulary order in the file.
+            keep_order (bool): Keep the vocabulary order in the file. It is
+                ignored if ``vocab`` is given.
             encoding (str): Encoding of the input file as defined in ``codecs``
                 module of Python standard library.
             unicode_errors (str): Set the error handling scheme. The default
@@ -150,15 +160,38 @@ class WordEmbedding(object):
         Returns:
             :class:`~word_embedding_loader.word_embedding.WordEmbedding`
         """
+        freqs = None
+        if vocab is not None:
+            if keep_order:
+                warnings.warn(
+                    "Argument keep_order=True is ignored because vocab is given",
+                    UserWarning)
+            with open(vocab, mode='r') as f:
+                freqs = loader.vocab.load_vocab(
+                    f, encoding=encoding, errors=unicode_errors)
+            # Create vocab from freqs
+            # [:None] gives all the list member
+            vocab = OrderedDict(
+                ((k, i) for i, (k, v) in enumerate(
+                    sorted(freqs.iteritems(),
+                           key=lambda (k, v): v, reverse=True)[:max_vocab]
+                )))
+
         with open(path, mode='r') as f:
             if format is None:
                 mod = _classify_format(f)
             else:
                 mod = _select_module(format, binary)
-            arr, vocab = mod.loader.load(
-                f, max_vocab=max_vocab, dtype=dtype, keep_order=keep_order,
-                unicode_errors=unicode_errors, encoding=encoding)
-        obj = cls(arr, vocab)
+            if vocab is not None:
+                arr = mod.loader.load_with_vocab(
+                    f, vocab, dtype=dtype, encoding=encoding,
+                    unicode_errors=unicode_errors)
+                v = vocab
+            else:
+                arr, v = mod.loader.load(
+                    f, max_vocab=max_vocab, dtype=dtype, keep_order=keep_order,
+                    unicode_errors=unicode_errors, encoding=encoding)
+        obj = cls(arr, v, freqs)
         obj._load_cond = LoadCondition(mod, encoding, unicode_errors)
         return obj
 
@@ -181,7 +214,8 @@ class WordEmbedding(object):
         if use_load_condition:
             if self._load_cond is None:
                 raise ValueError(
-                    "use_load_condition was specified but the object is not loaded from a file")
+                    "use_load_condition was specified but the object is not "
+                    "loaded from a file")
             # Use load condition
             mod = self._load_cond.mod
             encoding = self._load_cond.encoding

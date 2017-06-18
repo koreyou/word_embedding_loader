@@ -77,6 +77,45 @@ def test_WordEmbedding___load__(glove_file, keep_order):
                                 dtype=np.float32))
 
 
+def test_WordEmbedding___load___vocab(word2vec_text_file, vocab_file):
+    obj = word_embedding.WordEmbedding.load(
+        word2vec_text_file.name, vocab=vocab_file.name)
+    vocab = obj.vocab
+    arr = obj.vectors
+    assert u'</s>' in vocab
+    assert u'the' not in vocab
+    assert u'日本語' in vocab
+    assert len(obj) == 2
+    assert arr.dtype == np.float32
+
+    assert vocab[u'日本語'] == 0
+    assert vocab[u'</s>'] == 1
+
+    assert_array_equal(arr[vocab[u'</s>']],
+                       np.array([ 0.080054, 0.088388],
+                                dtype=np.float32))
+    assert_array_equal(arr[vocab[u'日本語']],
+                       np.array([-0.16799, 0.10951],
+                                dtype=np.float32))
+
+
+def test_WordEmbedding___load___vocab_maxvocab(word2vec_text_file, vocab_file):
+    obj = word_embedding.WordEmbedding.load(
+        word2vec_text_file.name, vocab=vocab_file.name, max_vocab=1)
+    vocab = obj.vocab
+    arr = obj.vectors
+    assert u'</s>' not in vocab
+    assert u'the' not in vocab
+    assert u'日本語' in vocab
+    assert len(obj) == 1
+    assert arr.dtype == np.float32
+
+    assert vocab[u'日本語'] == 0
+    assert_array_equal(arr[vocab[u'日本語']],
+                       np.array([-0.16799, 0.10951],
+                                dtype=np.float32))
+
+
 def test_WordEmbedding___save__(word_embedding_data, tmpdir):
     arr_input, vocab_input = word_embedding_data
     obj = word_embedding.WordEmbedding(arr_input, vocab_input)
