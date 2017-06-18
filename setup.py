@@ -20,25 +20,17 @@ ext_modules = [
     )
 ]
 
+cmdclass = {}
+
 for e in ext_modules:
     e.cython_directives = {"embedsignature": True}
 
-class BuildDocApiDoc(BuildDoc, object):
-    # inherit from object to enable 'super'
-    user_options = []
-    description = 'sphinx'
-    def run(self):
-        # metadata contains information supplied in setup()
-        metadata = self.distribution.metadata
-        # package_dir may be None, in that case use the current directory.
-        src_dir = (self.distribution.package_dir or {'': ''})['']
-        src_dir = os.path.join(os.getcwd(),  src_dir)
-        # Run sphinx by calling the main method, '--full' also adds a conf.py
-        sphinx.apidoc.main(
-            ['', '-f', '-H', metadata.name, '-A', metadata.author,
-             '-V', metadata.version, '-R', metadata.version, '-T', '-M',
-             '-o', os.path.join('doc', 'source', 'modules'), src_dir])
-        super(BuildDocApiDoc, self).run()
+
+try:
+    from sphinx.setup_command import BuildDoc
+    cmdclass['build_sphinx'] = BuildDoc
+except ImportError:
+    pass
 
 
 name = 'WordEmbeddingLoader'
@@ -51,7 +43,7 @@ setup(
     version=version,
     packages=['word_embedding_loader', ],
     license='Creative Commons BY',
-    cmdclass = {'build_sphinx': BuildDocApiDoc},
+    cmdclass = cmdclass,
     install_requires=[
         'Click',
     ],

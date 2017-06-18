@@ -18,7 +18,12 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../..'))
+
+import sphinx.apidoc
+
+
+root_dir = os.path.abspath('../..')
+sys.path.insert(0, root_dir)
 
 
 # -- General configuration ------------------------------------------------
@@ -155,4 +160,16 @@ texinfo_documents = [
 ]
 
 
+def run_apidoc(_):
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    src_dir = os.path.join(script_dir,  root_dir)
+    out_dir = os.path.join(script_dir, "modules")
+    # Run sphinx by calling the main method, '--full' also adds a conf.py
+    sphinx.apidoc.main(
+        ['', '-f', '-H', project, '-A', author,
+         '-V', version, '-R', release, '-T', '-M',
+         '-o', out_dir, src_dir])
 
+
+def setup(app):
+    app.connect('builder-inited', run_apidoc)
