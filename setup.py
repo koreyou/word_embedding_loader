@@ -38,7 +38,7 @@ setup(
     author='Yuta Koreeda',
     version=version,
     packages=['word_embedding_loader', ],
-    license='Creative Commons BY',
+    license='MIT License',
     cmdclass = {'build_py': BuildPyCommand},
     install_requires=[
         'Click',
