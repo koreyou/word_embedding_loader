@@ -28,6 +28,12 @@ class BuildPyCommand(build_py):
         cythonize(ext_modules)
         build_py.run(self)
 
+try:
+    with open('README.rst') as f:
+        readme = f.read()
+except IOError:
+    readme = ''
+
 
 name = 'WordEmbeddingLoader'
 version = '0.1'
@@ -36,9 +42,13 @@ release = '0.1.0'
 setup(
     name=name,
     author='Yuta Koreeda',
+    maintainer='Yuta Koreeda',
     version=version,
+    description='Loaders and savers for different implentations of word embedding.',
+    long_description=readme,
+    url='https://github.com/koreyou/word_embedding_loader',
     packages=['word_embedding_loader', ],
-    license='MIT License',
+    license='MIT',
     cmdclass = {'build_py': BuildPyCommand},
     install_requires=[
         'Click',
@@ -59,5 +69,19 @@ setup(
                       'numpy',
                       'Cython'
                       ],
-    tests_require = ['pytest', 'pytest-cov', 'Cython']
+    tests_require = ['pytest', 'pytest-cov', 'Cython'],
+    classifiers=[
+        "Environment :: Console",
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Education",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Cython",
+        "Topic :: Documentation :: Sphinx",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+        "Topic :: Scientific/Engineering :: Information Analysis"
+    ]
 )
