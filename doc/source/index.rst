@@ -6,6 +6,11 @@
 Welcome to WordEmbeddingLoader's documentation!
 ===============================================
 
+.. include:: ../../README.rst
+
+.. include:: ../../CHANGELOG.rst.rst
+
+
 .. toctree::
       :glob:
       :caption: Modules
