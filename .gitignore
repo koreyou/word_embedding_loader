@@ -22,6 +22,7 @@ htmlcov/
 build/
 doc/source/modules/
 doc/build/
+dist/
 
 ###### Python debris ########
 

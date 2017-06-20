@@ -37,17 +37,22 @@ except IOError:
 
 name = 'WordEmbeddingLoader'
 version = '0.1'
-release = '0.1.0'
+release = '0.1.1'
 
 setup(
     name=name,
     author='Yuta Koreeda',
+    author_email='secret-email@example.com',
     maintainer='Yuta Koreeda',
-    version=version,
+    maintainer_email='secret-email@example.com',
+    version=release,
     description='Loaders and savers for different implentations of word embedding.',
     long_description=readme,
     url='https://github.com/koreyou/word_embedding_loader',
-    packages=['word_embedding_loader', ],
+    packages=['word_embedding_loader',
+              'word_embedding_loader.loader',
+              'word_embedding_loader.saver'
+              ],
     license='MIT',
     cmdclass = {'build_py': BuildPyCommand},
     install_requires=[
