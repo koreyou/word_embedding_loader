@@ -37,3 +37,18 @@ Sometimes, you want combine an external program with word embedding file of your
    word-embedding-loader --help
    word-embedding-loader convert --help
 
+
+Development
+============
+
+This project us Cython to build some modules, so you need Cython for development.
+
+```bash
+pip install -r requirements.txt
+```
+
+If environment variable ``DEVELOP_WE`` is set, it will try to rebuild ``.pyx`` modules.
+
+```bash
+DEVELOP_WE=1 python setup.py test
+```

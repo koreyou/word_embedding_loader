@@ -3,7 +3,6 @@ import os
 from setuptools import setup
 from setuptools.extension import Extension
 from setuptools.command.sdist import sdist as _sdist
-from setuptools.command.test import test as _test
 
 
 cython_modules = [
@@ -33,6 +32,7 @@ def _cythonize(extensions, apply_cythonize):
 
 class sdist(_sdist):
     def run(self):
+        # Force cythonize for sdist
         _cythonize(cython_modules, True)
         _sdist.run(self)
 
@@ -92,7 +92,7 @@ setup(
               ],
     ext_modules=lazy_cythonize(
         cython_modules,
-        os.environ.get('DEVELOP_WE', os.environ.get('READTHEDOCS'))
+        os.environ.get('DEVELOP_WE', os.environ.get('READTHEDOCS')) is not None
     ),
     license='MIT',
     cmdclass = {'sdist': sdist},
