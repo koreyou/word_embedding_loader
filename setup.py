@@ -14,7 +14,6 @@ cython_modules = [
 
 def _cythonize(extensions, apply_cythonize):
     import numpy
-    from Cython.Build import cythonize
     ext = '.pyx' if apply_cythonize else '.cpp'
     extensions = [
         Extension(
@@ -27,6 +26,7 @@ def _cythonize(extensions, apply_cythonize):
         # Add signiture for Sphinx
         extensions[i].cython_directives = {"embedsignature": True}
     if apply_cythonize:
+        from Cython.Build import cythonize
         extensions = cythonize(extensions)
     return extensions
 
