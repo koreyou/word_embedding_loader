@@ -2,6 +2,8 @@ import os
 
 from setuptools import setup
 from setuptools.extension import Extension
+from setuptools.command.sdist import sdist as _sdist
+from setuptools.command.test import test as _test
 
 
 cython_modules = [
@@ -9,30 +11,48 @@ cython_modules = [
     ["word_embedding_loader", "saver", "word2vec_bin"]
 ]
 
-ext_modules = [
-    Extension(
-        '.'.join(mod), ['/'.join(mod) + '.pyx'],
-        language="c++"
-    ) for mod in cython_modules
-]
+
+def _cythonize(extensions, apply_cythonize):
+    import numpy
+    from Cython.Build import cythonize
+    ext = '.pyx' if apply_cythonize else '.cpp'
+    extensions = [
+        Extension(
+            '.'.join(mod), ['/'.join(mod) + ext],
+            language="c++"
+        ) for mod in extensions
+    ]
+    for i in xrange(len(extensions)):
+        extensions[i].include_dirs.append(numpy.get_include())
+        # Add signiture for Sphinx
+        extensions[i].cython_directives = {"embedsignature": True}
+    if apply_cythonize:
+        extensions = cythonize(extensions)
+    return extensions
+
+
+class sdist(_sdist):
+    def run(self):
+        _cythonize(cython_modules, True)
+        _sdist.run(self)
+
+
+class test(_test):
+    def run(self):
+        _cythonize(cython_modules, True)
+        self.run(self)
 
 
 class lazy_cythonize(list):
     # Adopted from https://stackoverflow.com/a/26698408/7820599
     def _cythonize(self):
-        import numpy
-        from Cython.Build import cythonize
-        extensions = self._list
-        for i in xrange(len(extensions)):
-            extensions[i].include_dirs.append(numpy.get_include())
-            # Add signiture for Sphinx
-            extensions[i].cython_directives = {"embedsignature": True}
-        self._list = cythonize(extensions)
+        self._list = _cythonize(self._list, self._apply_cythonize)
         self._is_cythonized = True
 
-    def __init__(self, extensions):
+    def __init__(self, extensions, apply_cythonize=False):
         super(lazy_cythonize, self).__init__()
         self._list = extensions
+        self._apply_cythonize = apply_cythonize
         self._is_cythonized = False
 
     def c_list(self):
@@ -77,8 +97,12 @@ setup(
               'word_embedding_loader.loader',
               'word_embedding_loader.saver'
               ],
-    ext_modules=lazy_cythonize(ext_modules),
+    ext_modules=lazy_cythonize(
+        cython_modules,
+        os.environ.get('DEVELOP_WE', os.environ.get('READTHEDOCS'))
+    ),
     license='MIT',
+    cmdclass = {'sdist': sdist, 'test': test},
     install_requires=[
         'Click',
         'numpy'
@@ -96,7 +120,6 @@ setup(
                       'sphinxcontrib-napoleon',
                       'sphinx_rtd_theme',
                       'numpy',
-                      'Cython'
                       ],
     tests_require = ['pytest', 'pytest-cov', 'Cython'],
     classifiers=[
