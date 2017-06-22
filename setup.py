@@ -37,12 +37,6 @@ class sdist(_sdist):
         _sdist.run(self)
 
 
-class test(_test):
-    def run(self):
-        _cythonize(cython_modules, True)
-        self.run(self)
-
-
 class lazy_cythonize(list):
     # Adopted from https://stackoverflow.com/a/26698408/7820599
     def _cythonize(self):
@@ -71,7 +65,6 @@ class lazy_cythonize(list):
         return len(self.c_list())
 
 
-
 try:
     with open('README.rst') as f:
         readme = f.read()
@@ -81,7 +74,7 @@ except IOError:
 
 name = 'WordEmbeddingLoader'
 version = '0.1'
-release = '0.1.2'
+release = '0.1.3'
 
 setup(
     name=name,
@@ -102,10 +95,10 @@ setup(
         os.environ.get('DEVELOP_WE', os.environ.get('READTHEDOCS'))
     ),
     license='MIT',
-    cmdclass = {'sdist': sdist, 'test': test},
+    cmdclass = {'sdist': sdist},
     install_requires=[
         'Click',
-        'numpy'
+        'numpy>=1.10'
     ],
     entry_points = {
         'console_scripts': ['word-embedding-loader=word_embedding_loader.cli:cli'],
@@ -116,10 +109,7 @@ setup(
             'version': ('setup.py', version),
             'release': ('setup.py', release)}},
     setup_requires = ['pytest-runner',
-                      'sphinx',
-                      'sphinxcontrib-napoleon',
-                      'sphinx_rtd_theme',
-                      'numpy',
+                      'numpy>=1.10',
                       ],
     tests_require = ['pytest', 'pytest-cov', 'Cython'],
     classifiers=[
