@@ -2,8 +2,6 @@ import os
 
 from setuptools import setup
 from setuptools.extension import Extension
-from setuptools.command.build_ext import build_ext as _build_ext
-
 
 
 cython_modules = [
@@ -13,28 +11,46 @@ cython_modules = [
 
 ext_modules = [
     Extension(
-        '.'.join(mod), ['/'.join(mod) + '.cpp'],
+        '.'.join(mod), ['/'.join(mod) + '.pyx'],
         language="c++"
     ) for mod in cython_modules
 ]
 
-class BuildPyCommand(_build_ext):
-    """ Custom build routine """
-#    def run(self):
 
-    def run(self):
+class lazy_cythonize(list):
+    # Adopted from https://stackoverflow.com/a/26698408/7820599
+    def _cythonize(self):
         import numpy
         from Cython.Build import cythonize
-        _ext_modules = [Extension(
-            '.'.join(mod), ['/'.join(mod) + '.cpp'],
-            language="c++", include_dirs=[numpy.get_include()]
-        ) for mod in cython_modules]
-        for i in xrange(len(self.extensions)):
-            self.extensions[i].include_dirs.append(numpy.get_include())
+        extensions = self._list
+        for i in xrange(len(extensions)):
+            extensions[i].include_dirs.append(numpy.get_include())
             # Add signiture for Sphinx
-            self.extensions[i].cython_directives = {"embedsignature": True}
-        cythonize(_ext_modules)
-        _build_ext.run(self)
+            extensions[i].cython_directives = {"embedsignature": True}
+        self._list = cythonize(extensions)
+        self._is_cythonized = True
+
+    def __init__(self, extensions):
+        super(lazy_cythonize, self).__init__()
+        self._list = extensions
+        self._is_cythonized = False
+
+    def c_list(self):
+        if not self._is_cythonized:
+            self._cythonize()
+        return self._list
+
+    def __iter__(self):
+        for e in self.c_list():
+            yield e
+
+    def __getitem__(self, ii):
+        return self.c_list()[ii]
+
+    def __len__(self):
+        return len(self.c_list())
+
+
 
 try:
     with open('README.rst') as f:
@@ -61,9 +77,8 @@ setup(
               'word_embedding_loader.loader',
               'word_embedding_loader.saver'
               ],
-    ext_modules=ext_modules,
+    ext_modules=lazy_cythonize(ext_modules),
     license='MIT',
-    cmdclass = {'build_ext': BuildPyCommand},
     install_requires=[
         'Click',
         'numpy'
