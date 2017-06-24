@@ -21,9 +21,14 @@ import sys
 
 import sphinx.apidoc
 
-
 root_dir = os.path.abspath('../..')
-sys.path.insert(0, root_dir)
+
+try:
+    # This succeeds = the project is already installed.
+    # This directive avoids Readthedocs to fail
+    import word_embedding_loader
+except ImportError:
+    sys.path.insert(0, root_dir)
 
 
 # -- General configuration ------------------------------------------------

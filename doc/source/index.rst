@@ -8,7 +8,7 @@ Welcome to WordEmbeddingLoader's documentation!
 
 .. include:: ../../README.rst
 
-.. include:: ../../CHANGELOG.rst.rst
+.. include:: ../../CHANGELOG.rst
 
 
 .. toctree::
