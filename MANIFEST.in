@@ -1,0 +1,7 @@
+include test/word_embedding_loader/word2vec.bin
+recursive-include test *.py
+recursive-include word_embedding_loader *.pyx
+include doc/source/conf.py
+include doc/source/index.rst
+include CHANGELOG.rst
+include LICENSE
