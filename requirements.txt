@@ -3,3 +3,4 @@ sphinxcontrib-napoleon
 sphinx_rtd_theme
 Cython
 Click
+twine
