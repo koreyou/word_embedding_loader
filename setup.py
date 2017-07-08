@@ -73,8 +73,9 @@ except IOError:
 
 
 name = 'WordEmbeddingLoader'
-version = '0.1'
-release = '0.1.0'
+exec(open('word_embedding_loader/_version.py').read())
+release = __version__
+version = '.'.join(release.split('.')[:2])
 
 setup(
     name=name,
