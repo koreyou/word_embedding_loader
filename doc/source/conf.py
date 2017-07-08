@@ -29,6 +29,7 @@ try:
     import word_embedding_loader
 except ImportError:
     sys.path.insert(0, root_dir)
+    import word_embedding_loader
 
 
 # -- General configuration ------------------------------------------------
