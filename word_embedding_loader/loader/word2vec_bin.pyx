@@ -80,8 +80,8 @@ def load_with_vocab(
     return ret.astype(dtype)
 
 
-cdef _load_impl(FILE *f, long long words, long long size, str encoding,
-                bool is_encoded, str errors):
+cdef _load_impl(FILE *f, long long words, long long size, bytes encoding,
+                bool is_encoded, bytes errors):
     cdef char ch
     cdef int l
     cdef char[100] vocab
@@ -117,7 +117,7 @@ def load(fin, dtype=np.float32, max_vocab=None,
         words = words
     else:
         words = min(max_vocab, words)
-    ret = _load_impl(f, words, size, encoding, encoding is not None,
-                     unicode_errors)
+    ret = _load_impl(f, words, size, bytes(encoding), encoding is not None,
+                     bytes(unicode_errors))
     arr, vocabs = ret
     return arr.astype(dtype), vocabs

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function
+from __future__ import absolute_import, division, print_function, \
+    unicode_literals
 
 __all__ = ["WordEmbedding", "classify_format"]
 
@@ -31,7 +32,7 @@ def _select_module(format, binary):
         mod = _glove
         if binary:
             warnings.warn(
-                "Argument binary=True for glove loader is ignored.",
+                b"Argument binary=True for glove loader is ignored.",
                 UserWarning)
     elif format == 'word2vec':
         if binary:
@@ -39,7 +40,7 @@ def _select_module(format, binary):
         else:
             mod = _word2vec_text
     else:
-        raise NameError('Unknown format "%s"' % format)
+        raise NameError(b'Unknown format "%s"' % format.encode('utf-8'))
     return mod
 
 
@@ -47,10 +48,10 @@ def _get_two_lines(f):
     """
     Get the first and second lines
     Args:
-        f (filelike):
+        f (filelike): File that is opened for ascii.
 
     Returns:
-        unicode
+        bytes
 
     """
     cur_pos = f.tell()
@@ -81,7 +82,7 @@ def classify_format(f):
     elif loader.word2vec_bin.check_valid(l0, l1):
         return _word2vec_bin
     else:
-        raise OSError("Invalid format")
+        raise OSError(b"Invalid format")
 
 
 class LoadCondition(object):
@@ -92,7 +93,7 @@ class LoadCondition(object):
 
 
 class WordEmbedding(object):
-    u"""
+    """
     Main API for loading and saving of pretrained word embedding files.
 
     .. note:: You do not need to call initializer directly in normal usage.
@@ -117,13 +118,13 @@ class WordEmbedding(object):
     def __init__(self, vectors, vocab, freqs=None):
         if not isinstance(vectors, np.ndarray):
             raise TypeError(
-                "Expected numpy.ndarray for vectors, %s found." % type(vectors))
+                b"Expected numpy.ndarray for vectors, %s found." % type(vectors))
         if not isinstance(vocab, dict):
             raise TypeError(
-                "Expected dict for vocab, %s found." % type(vectors))
+                b"Expected dict for vocab, %s found." % type(vectors))
         if len(vectors) != len(vocab):
             warnings.warn(
-                "vectors and vocab size unmatch (%d != %d)" %
+                b"vectors and vocab size unmatch (%d != %d)" %
                 (len(vectors), len(vocab)))
         self.vectors = vectors
         self.vocab = vocab
@@ -134,7 +135,7 @@ class WordEmbedding(object):
     def load(cls, path, vocab=None, dtype=np.float32, max_vocab=None,
              format=None, binary=False, encoding='utf-8',
              unicode_errors='strict'):
-        u"""
+        """
         Load pretrained word embedding from a file.
 
         Args:
@@ -198,7 +199,7 @@ class WordEmbedding(object):
 
     def save(self, path, format, encoding='utf-8', unicode_errors='strict',
              binary=False, use_load_condition=False):
-        u"""
+        """
         Save object as word embedding file. For most arguments, you should refer
         to :func:`~word_embedding_loader.word_embedding.WordEmbedding.load`.
 
@@ -215,8 +216,8 @@ class WordEmbedding(object):
         if use_load_condition:
             if self._load_cond is None:
                 raise ValueError(
-                    "use_load_condition was specified but the object is not "
-                    "loaded from a file")
+                    b"use_load_condition was specified but the object is not "
+                    b"loaded from a file")
             # Use load condition
             mod = self._load_cond.mod
             encoding = self._load_cond.encoding
@@ -241,7 +242,7 @@ class WordEmbedding(object):
 
     @property
     def size(self):
-        u"""
+        """
         Feature dimension of the loaded vector.
 
         Returns:

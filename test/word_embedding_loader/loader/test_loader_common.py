@@ -1,11 +1,11 @@
-from __future__ import absolute_import, print_function
+from __future__ import absolute_import, division, print_function, \
+    unicode_literals
 
 import pytest
-
 import word_embedding_loader.loader.word2vec_bin as word2vec_bin
-import word_embedding_loader.loader.word2vec_text as word2vec_text
-import word_embedding_loader.loader.glove as glove
 
+import word_embedding_loader.loader.glove as glove
+import word_embedding_loader.loader.word2vec_text as word2vec_text
 
 
 @pytest.fixture(params=['word2vec_bin_file', 'word2vec_text_file', 'glove_file'])
