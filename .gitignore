@@ -13,7 +13,7 @@
 # pyenv
 .python-version
 
-# setuptool and py.test
+# setuptool, tox and py.test
 .cache/
 .coverage
 htmlcov/
@@ -23,6 +23,7 @@ build/
 doc/source/modules/
 doc/build/
 dist/
+.tox/
 
 ###### Python debris ########
 

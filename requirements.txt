@@ -2,5 +2,7 @@ sphinx
 sphinxcontrib-napoleon
 sphinx_rtd_theme
 Cython
+numpy>=1.10
 Click
 twine
+tox

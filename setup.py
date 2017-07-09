@@ -109,10 +109,9 @@ setup(
             'project': ('setup.py', name),
             'version': ('setup.py', version),
             'release': ('setup.py', release)}},
-    setup_requires = ['pytest-runner',
+    setup_requires = ['Cython',
                       'numpy>=1.10',
                       ],
-    tests_require = ['pytest', 'pytest-cov', 'Cython'],
     classifiers=[
         "Environment :: Console",
         "Development Status :: 4 - Beta",
