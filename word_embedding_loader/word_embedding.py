@@ -178,7 +178,7 @@ class WordEmbedding(object):
             # [:None] gives all the list member
             vocab = {k: i for i, (k, v) in enumerate(
                     sorted(six.iteritems(freqs),
-                           key=lambda (k, v): v, reverse=True)[:max_vocab])}
+                           key=lambda k_v: k_v[1], reverse=True)[:max_vocab])}
 
         with open(path, mode='r') as f:
             if format is None:
@@ -231,9 +231,9 @@ class WordEmbedding(object):
             return (key.encode(encoding, errors=unicode_errors), value)
 
         if self.freqs is None:
-            itr = map(_mapper, sorted(six.iteritems(self.vocab), key=lambda (k, v): v))
+            itr = map(_mapper, sorted(six.iteritems(self.vocab), key=lambda k_v: k_v[1]))
         else:
-            itr = map(_mapper, sorted(six.iteritems(self.vocab), key=lambda (k, v): self.freqs[k], reverse=True))
+            itr = map(_mapper, sorted(six.iteritems(self.vocab), key=lambda k_v: self.freqs[k_v[0]], reverse=True))
 
         with open(path, mode='w') as f:
             mod.saver.save(f, self.vectors, itr)

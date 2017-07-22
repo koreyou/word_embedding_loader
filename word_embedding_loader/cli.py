@@ -76,5 +76,5 @@ def list():
     choice_len = max(map(len, list(_input_choices.keys())))
     tmpl = "  {:<%d}: {}\n" % choice_len
     text = ''.join(map(
-        lambda (k, v): tmpl.format(k, v[0]), six.iteritems(_input_choices)))
+        lambda k_v: tmpl.format(k_v[0], k_v[1][0]), six.iteritems(_input_choices)))
     click.echo(text)
