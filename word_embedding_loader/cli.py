@@ -7,6 +7,7 @@ from collections import OrderedDict
 import click
 
 from word_embedding_loader import word_embedding
+import six
 
 
 # Each value is (description, format string, is_binary) tuple
@@ -31,9 +32,9 @@ def cli():
 @cli.command()
 @click.argument('inputfile', type=click.Path(exists=True))
 @click.argument('outputfile', type=click.Path())
-@click.option('-t', '--to-format', type=click.Choice(_output_choices.keys()),
+@click.option('-t', '--to-format', type=click.Choice(list(_output_choices.keys())),
               help='Target format')
-@click.option('-f', '--from-format', type=click.Choice(_input_choices.keys()),
+@click.option('-f', '--from-format', type=click.Choice(list(_input_choices.keys())),
               default='auto', help='Source format. It will guess format from content if not given.')
 def convert(outputfile, inputfile, to_format, from_format):
     """
@@ -72,8 +73,8 @@ def list():
     """
     List available format.
     """
-    choice_len = max(map(len, _input_choices.keys()))
+    choice_len = max(map(len, list(_input_choices.keys())))
     tmpl = "  {:<%d}: {}\n" % choice_len
     text = ''.join(map(
-        lambda (k, v): tmpl.format(k, v[0]), _input_choices.iteritems()))
+        lambda (k, v): tmpl.format(k, v[0]), six.iteritems(_input_choices)))
     click.echo(text)

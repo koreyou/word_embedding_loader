@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, \
     unicode_literals
+import six
 
 __all__ = ["WordEmbedding", "classify_format"]
 
@@ -176,7 +177,7 @@ class WordEmbedding(object):
             # Create vocab from freqs
             # [:None] gives all the list member
             vocab = {k: i for i, (k, v) in enumerate(
-                    sorted(freqs.iteritems(),
+                    sorted(six.iteritems(freqs),
                            key=lambda (k, v): v, reverse=True)[:max_vocab])}
 
         with open(path, mode='r') as f:
@@ -230,9 +231,9 @@ class WordEmbedding(object):
             return (key.encode(encoding, errors=unicode_errors), value)
 
         if self.freqs is None:
-            itr = map(_mapper, sorted(self.vocab.iteritems(), key=lambda (k, v): v))
+            itr = map(_mapper, sorted(six.iteritems(self.vocab), key=lambda (k, v): v))
         else:
-            itr = map(_mapper, sorted(self.vocab.iteritems(), key=lambda (k, v): self.freqs[k], reverse=True))
+            itr = map(_mapper, sorted(six.iteritems(self.vocab), key=lambda (k, v): self.freqs[k], reverse=True))
 
         with open(path, mode='w') as f:
             mod.saver.save(f, self.vectors, itr)

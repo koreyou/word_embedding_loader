@@ -6,6 +6,7 @@ import io
 
 import numpy as np
 from numpy.testing import assert_array_equal
+from six.moves import range
 
 from word_embedding_loader import loader
 from word_embedding_loader import word_embedding

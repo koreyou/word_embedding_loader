@@ -13,6 +13,7 @@ cython_modules = [
 
 def _cythonize(extensions, apply_cythonize):
     import numpy
+    import six
     ext = '.pyx' if apply_cythonize else '.cpp'
     extensions = [
         Extension(
@@ -20,7 +21,7 @@ def _cythonize(extensions, apply_cythonize):
             language="c++"
         ) for mod in extensions
     ]
-    for i in xrange(len(extensions)):
+    for i in six.moves.xrange(len(extensions)):
         extensions[i].include_dirs.append(numpy.get_include())
         # Add signiture for Sphinx
         extensions[i].cython_directives = {"embedsignature": True}
@@ -99,7 +100,8 @@ setup(
     cmdclass = {'sdist': sdist},
     install_requires=[
         'Click',
-        'numpy>=1.10'
+        'numpy>=1.10',
+        'six'
     ],
     entry_points = {
         'console_scripts': ['word-embedding-loader=word_embedding_loader.cli:cli'],
@@ -111,6 +113,7 @@ setup(
             'release': ('setup.py', release)}},
     setup_requires = ['Cython',
                       'numpy>=1.10',
+                      'six'
                       ],
     classifiers=[
         "Environment :: Console",
