@@ -171,7 +171,7 @@ class WordEmbedding(object):
         """
         freqs = None
         if vocab is not None:
-            with open(vocab, mode='r') as f:
+            with open(vocab, mode='rb') as f:
                 freqs = loader.vocab.load_vocab(
                     f, encoding=encoding, errors=unicode_errors)
             # Create vocab from freqs
@@ -180,7 +180,7 @@ class WordEmbedding(object):
                     sorted(six.iteritems(freqs),
                            key=lambda k_v: k_v[1], reverse=True)[:max_vocab])}
 
-        with open(path, mode='r') as f:
+        with open(path, mode='rb') as f:
             if format is None:
                 mod = classify_format(f)
             else:
@@ -235,7 +235,7 @@ class WordEmbedding(object):
         else:
             itr = map(_mapper, sorted(six.iteritems(self.vocab), key=lambda k_v: self.freqs[k_v[0]], reverse=True))
 
-        with open(path, mode='w') as f:
+        with open(path, mode='wb') as f:
             mod.saver.save(f, self.vectors, itr)
 
     def __len__(self):

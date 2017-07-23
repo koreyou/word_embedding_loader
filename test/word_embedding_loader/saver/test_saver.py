@@ -38,7 +38,7 @@ def test_load(word_embedding_data, mod, tmpdir):
     _saver, _loader = mod
     arr_input, vocab_input, vocab_expected = word_embedding_data
 
-    with open(tmpdir.join('output.txt').strpath, 'a+') as f:
+    with open(tmpdir.join('output.txt').strpath, 'a+b') as f:
         _saver.save(f, arr_input, vocab_input)
         f.seek(0)
         arr, vocab = _loader.load(f, dtype=np.float32, encoding='utf-8')

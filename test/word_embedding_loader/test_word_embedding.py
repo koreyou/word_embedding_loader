@@ -13,9 +13,9 @@ from word_embedding_loader import word_embedding
 
 
 def test__get_two_lines():
-    f = io.StringIO("""2 3
+    f = io.BytesIO("""2 3
 </s> 0.080054 0.088388 -0.07660
-the -1.420859 1.156857 0.744776""")
+the -1.420859 1.156857 0.744776""".encode('utf-8'))
     l0, l1 = word_embedding._get_two_lines(f)
     # It s
     assert l0 == b"2 3\n"
@@ -123,7 +123,7 @@ def test_WordEmbedding___save__(tmpdir):
     obj = word_embedding.WordEmbedding(arr_input, vocab_expected)
     tmp_path = tmpdir.join('WordEmbedding__save.txt').strpath
     obj.save(tmp_path, format="word2vec", binary=True)
-    with open(tmp_path, 'r') as f:
+    with open(tmp_path, 'rb') as f:
         arr, vocab = loader.word2vec_bin.load(f, dtype=np.float32)
     assert_array_equal(arr, arr_input)
     assert vocab_expected == vocab

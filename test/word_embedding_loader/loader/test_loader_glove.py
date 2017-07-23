@@ -43,9 +43,9 @@ def test_check_valid():
 
 
 def test_load_fail():
-    f = io.StringIO("""the 0.418 0.24968 -0.41242 0.1217
+    f = io.BytesIO("""the 0.418 0.24968 -0.41242 0.1217
 , 0.013441 0.23682 0.40951
-日本語 0.15164 0.30177 -0.16763 0.17684""")
+日本語 0.15164 0.30177 -0.16763 0.17684""".encode('utf-8'))
     with pytest.raises(ParseError):
         glove.load(f)
 

@@ -46,18 +46,18 @@ def test_check_valid():
 
 
 def test_load_fail():
-    f = io.StringIO("""3 2
+    f = io.BytesIO("""3 2
 </s> 0.080054 0.088388
 the -1.420859 1.156857
-日本語 0.10951""")
+日本語 0.10951""".encode('utf-8'))
     with pytest.raises(ParseError):
         word2vec.load(f)
 
 
 def test_load_warn():
-    f = io.StringIO("""3 2
+    f = io.BytesIO("""3 2
 </s> 0.080054 0.088388
-the -1.420859 1.156857""")
+the -1.420859 1.156857""".encode('utf-8'))
 
     with warnings.catch_warnings(record=True) as w:
         # Cause all warnings to always be triggered.
