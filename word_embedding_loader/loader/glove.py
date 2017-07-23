@@ -70,13 +70,16 @@ def load_with_vocab(
         try:
             token, v = _parse_line(line, dtype, encoding, unicode_errors)
         except (ValueError, IndexError):
-            raise ParseError(b'Parsing error in line: %s' % line)
+            raise ParseError(
+                ('Parsing error in line: %s' % line.decode(encoding)).encode('utf-8'))
         if token in vocab:
             if arr is None:
                 arr = np.empty((len(vocab), len(v)), dtype=dtype)
                 arr.fill(np.NaN)
             elif arr.shape[1] != len(v):
-                raise ParseError(b'Vector size did not match in line: %s' % line)
+                raise ParseError(
+                    ('Vector size did not match in line: %s'
+                     % line.decode(encoding)).encode('utf-8'))
             arr[vocab[token], :] = np.array(v, dtype=dtype).reshape(1, -1)
     return arr
 
@@ -110,15 +113,19 @@ def load(fin, dtype=np.float32, max_vocab=None, encoding='utf-8',
         try:
             token, v = _parse_line(line, dtype, encoding, unicode_errors)
         except (ValueError, IndexError):
-            raise ParseError(b'Parsing error in line: %s' % line)
+            raise ParseError(
+                ('Parsing error in line: %s' % line.decode(encoding)).encode('utf-8'))
         if token in vocab:
-            parse_warn(b'Duplicated vocabulary %s' % token.encode(encoding))
+            parse_warn(
+                ('Duplicated vocabulary %s' % token).encode('utf-8'))
             continue
         if arr is None:
             arr = np.array(v, dtype=dtype).reshape(1, -1)
         else:
             if arr.shape[1] != len(v):
-                raise ParseError(b'Vector size did not match in line: %s' % line)
+                raise ParseError(
+                    ('Vector size did not match in line: %s'
+                     % line.decode(encoding)).encode('utf-8'))
             arr = np.append(arr, [v], axis=0)
         vocab[token] = i
         i += 1

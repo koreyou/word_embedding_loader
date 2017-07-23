@@ -10,8 +10,8 @@ from __future__ import absolute_import, division, print_function, \
 
 
 def _write_line(f, vec, word):
-    v_text = b' '.join(map(bytes, vec))
-    f.write(b'{} {}'.format(word, v_text))
+    v_text = ' '.join(map(unicode, vec))
+    f.write(('{} {}'.format(word.decode('utf-8'), v_text)).encode('utf-8'))
 
 
 def save(f, arr, vocab):

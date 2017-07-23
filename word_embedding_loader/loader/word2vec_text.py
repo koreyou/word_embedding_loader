@@ -37,7 +37,9 @@ def _parse_line(line, dtype):
         token = data[0]
         v = map(dtype, data[1:])
     except (ValueError, IndexError):
-        raise ParseError(b'Parsing error in line: %s' % line)
+        raise ParseError(
+            ('Parsing error in line: %s' % line.decode('utf-8')
+             ).encode('utf-8'))
     return token, v
 
 
@@ -45,7 +47,9 @@ def _load_line(line, dtype, size, encoding, unicode_errors):
     # Parse line and do a sanity check
     token, v = _parse_line(line, dtype)
     if len(v) != size:
-        raise ParseError(b'Vector size did not match in line: %s' % line)
+        raise ParseError(
+            ('Vector size did not match in line: %s'
+             % line.decode(encoding)).encode('utf-8'))
     if encoding is not None:
         token = token.decode(encoding, errors=unicode_errors)
     return token, v
@@ -91,12 +95,15 @@ def load(fin, dtype=np.float32, max_vocab=None,
             break
         token, v = _load_line(line, dtype, size, encoding, unicode_errors)
         if token in vocab:
-            parse_warn(b'Duplicated vocabulary %s' % token.encode(encoding))
+            parse_warn(
+                ('Duplicated vocabulary %s' % token).encode('utf-8'))
             continue
         arr[i, :] = v
         vocab[token] = i
         i += 1
     if i != words:
-        parse_warn(b'EOF before the defined size (read %d, expected %d)' % (i, words))
+        parse_warn(
+            ('EOF before the defined size (read %d, expected %d)' % (i, words)
+             ).encode('utf-8'))
         arr = arr[:i, :]
     return arr, vocab

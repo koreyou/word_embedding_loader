@@ -41,7 +41,7 @@ def _select_module(format, binary):
         else:
             mod = _word2vec_text
     else:
-        raise NameError(b'Unknown format "%s"' % format.encode('utf-8'))
+        raise NameError(('Unknown format "%s"' % format).encode('utf-8'))
     return mod
 
 
@@ -119,14 +119,16 @@ class WordEmbedding(object):
     def __init__(self, vectors, vocab, freqs=None):
         if not isinstance(vectors, np.ndarray):
             raise TypeError(
-                b"Expected numpy.ndarray for vectors, %s found." % type(vectors))
+                ("Expected numpy.ndarray for vectors, %s found."% type(vectors)
+                 ).encode('utf-8'))
         if not isinstance(vocab, dict):
             raise TypeError(
-                b"Expected dict for vocab, %s found." % type(vectors))
+                ("Expected dict for vocab, %s found." % type(vectors)
+                 ).encode('utf-8'))
         if len(vectors) != len(vocab):
             warnings.warn(
-                b"vectors and vocab size unmatch (%d != %d)" %
-                (len(vectors), len(vocab)))
+                ("vectors and vocab size unmatch (%d != %d)" %
+                 (len(vectors), len(vocab))).encode('utf-8'))
         self.vectors = vectors
         self.vocab = vocab
         self.freqs = freqs
