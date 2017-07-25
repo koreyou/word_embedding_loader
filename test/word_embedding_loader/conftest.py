@@ -19,10 +19,15 @@ def glove_file(tmpdir):
 
 
 @pytest.fixture
-def word2vec_bin_file():
+def word2vec_bin_file_path():
     cur_dir = os.path.dirname(os.path.abspath(__file__))
     path = os.path.join(cur_dir, 'word2vec.bin')
-    with open(path, 'rb') as f:
+    yield path
+
+
+@pytest.fixture
+def word2vec_bin_file(word2vec_bin_file_path):
+    with open(word2vec_bin_file_path, 'rb') as f:
         yield f
 
 
