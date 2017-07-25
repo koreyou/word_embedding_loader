@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
-u"""
+"""
 Low level API for saving of word embedding file that was implemented in
 `GloVe <https://nlp.stanford.edu/projects/glove/>`_, Global Vectors for Word
 Representation, by Jeffrey Pennington, Richard Socher, Christopher D. Manning
 from Stanford NLP group.
 """
-from __future__ import absolute_import, print_function
+from __future__ import absolute_import, division, print_function, \
+    unicode_literals
 
+import  six
 
 def _write_line(f, vec, word):
-    v_text = ' '.join(map(str, vec))
-    f.write('{} {}'.format(word, v_text))
+    v_text = ' '.join(map(lambda c: six.u(str(c)), vec))
+    f.write(('{} {}'.format(word.decode('utf-8'), v_text)).encode('utf-8'))
 
 
 def save(f, arr, vocab):
@@ -21,7 +23,7 @@ def save(f, arr, vocab):
         f (File): File to write the vectors. File should be open for writing
             ascii.
         arr (numpy.array): Numpy array with ``float`` dtype.
-        vocab (iterable): Each element is pair of a word (``str``) and ``arr``
+        vocab (iterable): Each element is pair of a word (``bytes``) and ``arr``
             index (``int``). Word should be encoded to str apriori.
     """
     itr = iter(vocab)
@@ -29,5 +31,5 @@ def save(f, arr, vocab):
     word, idx = next(itr)
     _write_line(f, arr[idx], word)
     for word, idx in itr:
-        f.write('\n')
+        f.write(b'\n')
         _write_line(f, arr[idx], word)

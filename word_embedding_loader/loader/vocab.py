@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function
+from __future__ import absolute_import, division, print_function, \
+    unicode_literals
 
 from collections import OrderedDict
 
+
 def load_vocab(fin, encoding='utf-8', errors='strict'):
-    u"""
+    """
     Load vocabulary from vocab file created by word2vec with
     ``-save-vocab <file>`` option.
 
     Args:
         fin (File): File-like object to read from.
-        encoding (str): Encoding of the input file as defined in ``codecs``
+        encoding (bytes): Encoding of the input file as defined in ``codecs``
             module of Python standard library.
-        errors (str): Set the error handling scheme. The default error
+        errors (bytes): Set the error handling scheme. The default error
             handler is 'strict' meaning that encoding errors raise ValueError.
             Refer to ``codecs`` module for more information.
 
