@@ -52,7 +52,7 @@ def _echo_format_result(name):
 
 
 @cli.command()
-@click.argument('inputfile', type=click.File())
+@click.argument('inputfile', type=click.File('rb'))
 def check_format(inputfile):
     """
     Check format of inputfile.
@@ -73,7 +73,7 @@ def list():
     """
     List available format.
     """
-    choice_len = max(map(len, list(_input_choices.keys())))
+    choice_len = max(map(len, _input_choices.keys()))
     tmpl = "  {:<%d}: {}\n" % choice_len
     text = ''.join(map(
         lambda k_v: tmpl.format(k_v[0], k_v[1][0]), six.iteritems(_input_choices)))
