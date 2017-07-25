@@ -40,7 +40,7 @@ def check_valid(line0, line1):
 def _parse_line(line, dtype, encoding, unicode_errors):
     data = line.strip().split(b' ')
     token = data[0]
-    v = map(dtype, data[1:])
+    v = list(map(dtype, data[1:]))
     if encoding is not None:
         token = token.decode(encoding, errors=unicode_errors)
     return token, v

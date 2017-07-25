@@ -35,7 +35,7 @@ def _parse_line(line, dtype):
     try:
         data = line.strip().split(b' ')
         token = data[0]
-        v = map(dtype, data[1:])
+        v = list(map(dtype, data[1:]))
     except (ValueError, IndexError):
         raise ParseError(
             ('Parsing error in line: %s' % line.decode('utf-8')

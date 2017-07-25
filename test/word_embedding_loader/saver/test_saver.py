@@ -18,9 +18,9 @@ def word_embedding_data():
         ('日本語'.encode('utf-8'), 2)
     )
     vocab_dict = {
-        u'</s>': 0,
-        u'the': 1,
-        u'日本語': 2
+        '</s>': 0,
+        'the': 1,
+        '日本語': 2
     }
     arr = np.array(
         [[0.418, 0.24968, -0.41242, 0.1217],

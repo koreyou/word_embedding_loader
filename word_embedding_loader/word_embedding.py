@@ -233,9 +233,15 @@ class WordEmbedding(object):
             return (key.encode(encoding, errors=unicode_errors), value)
 
         if self.freqs is None:
-            itr = map(_mapper, sorted(six.iteritems(self.vocab), key=lambda k_v: k_v[1]))
+            itr = list(map(
+                _mapper,
+                sorted(six.iteritems(self.vocab), key=lambda k_v: k_v[1])))
         else:
-            itr = map(_mapper, sorted(six.iteritems(self.vocab), key=lambda k_v: self.freqs[k_v[0]], reverse=True))
+            itr = list(map(
+                _mapper,
+                sorted(six.iteritems(self.vocab),
+                       key=lambda k_v: self.freqs[k_v[0]], reverse=True)
+            ))
 
         with open(path, mode='wb') as f:
             mod.saver.save(f, self.vectors, itr)

@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
-u"""
+"""
 
 Low level API for loading of word embedding file that was implemented in
 `word2vec <https://code.google.com/archive/p/word2vec/>`_, by Mikolov.
 This implementation is for word embedding file created with ``-binary 1``
 option.
 """
+from __future__ import absolute_import, division, print_function, \
+    unicode_literals
 
 from collections import OrderedDict
 
@@ -21,11 +23,11 @@ ctypedef np.float32_t FLOAT
 
 
 def check_valid(line0, line1):
-    u"""
+    """
     Check :func:`word_embedding_loader.loader.glove.check_valid` for the API.
     """
     # Only check the first line
-    data0 = line0.split(u' ')
+    data0 = line0.split(b' ')
     if len(data0) != 2:
         return False
     # check if data0 is int values
@@ -66,12 +68,14 @@ cdef _load_with_vocab_impl(
 
 def load_with_vocab(
         fin, vocab, dtype=np.float32, encoding='utf-8', unicode_errors='strict'):
-    u"""
+    """
     Refer to :func:`word_embedding_loader.loader.glove.load_with_vocab` for the API.
     """
     cdef FILE *f = fdopen(fin.fileno(), 'rb') # attach the stream
     if (f) == NULL:
        raise IOError()
+    encoding = str(encoding)
+    unicode_errors = str(unicode_errors)
     cdef long long words, size
     fscanf(f, '%lld', &words)
     fscanf(f, '%lld', &size)
@@ -80,8 +84,8 @@ def load_with_vocab(
     return ret.astype(dtype)
 
 
-cdef _load_impl(FILE *f, long long words, long long size, bytes encoding,
-                bool is_encoded, bytes errors):
+cdef _load_impl(FILE *f, long long words, long long size, str encoding,
+                bool is_encoded, str errors):
     cdef char ch
     cdef int l
     cdef char[100] vocab
@@ -104,10 +108,13 @@ cdef _load_impl(FILE *f, long long words, long long size, bytes encoding,
 
 def load(fin, dtype=np.float32, max_vocab=None,
          encoding='utf-8', unicode_errors='strict'):
-    u"""
+    """
     Refer to :func:`word_embedding_loader.loader.glove.load` for the API.
     """
     cdef FILE *f = fdopen(fin.fileno(), 'rb') # attach the stream
+    if encoding is not None:
+        encoding = str(encoding)
+    unicode_errors = str(unicode_errors)
     if (f) == NULL:
        raise IOError()
     cdef long long words, size
@@ -117,7 +124,7 @@ def load(fin, dtype=np.float32, max_vocab=None,
         words = words
     else:
         words = min(max_vocab, words)
-    ret = _load_impl(f, words, size, bytes(encoding), encoding is not None,
-                     bytes(unicode_errors))
+    ret = _load_impl(f, words, size, encoding, encoding is not None,
+                     unicode_errors)
     arr, vocabs = ret
     return arr.astype(dtype), vocabs
