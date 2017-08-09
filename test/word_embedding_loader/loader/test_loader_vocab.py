@@ -8,5 +8,5 @@ from word_embedding_loader.loader import vocab
 
 
 def test_load_vocab(vocab_file):
-    expected = OrderedDict((("</s>", 0), ("日本語", 593677)))
+    expected = OrderedDict(((b"</s>", 0), ("日本語".encode('utf-8'), 593677)))
     assert vocab.load_vocab(vocab_file) == expected

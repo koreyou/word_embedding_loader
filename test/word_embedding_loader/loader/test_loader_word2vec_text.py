@@ -15,24 +15,24 @@ from word_embedding_loader import ParseError, ParseWarning
 
 def test_load(word2vec_text_file):
     arr, vocab = word2vec.load(word2vec_text_file)
-    assert '</s>' in vocab
-    assert 'the' in vocab
-    assert '日本語' in vocab
+    assert b'</s>' in vocab
+    assert b'the' in vocab
+    assert '日本語'.encode('utf-8') in vocab
     assert len(vocab) == 3
     assert len(arr) == 3
     assert arr.dtype == np.float32
 
-    assert vocab['</s>'] == 0
-    assert vocab['the'] == 1
-    assert vocab['日本語'] == 2
+    assert vocab[b'</s>'] == 0
+    assert vocab[b'the'] == 1
+    assert vocab['日本語'.encode('utf-8')] == 2
 
-    assert_array_equal(arr[vocab['</s>']],
+    assert_array_equal(arr[vocab[b'</s>']],
                        np.array([ 0.080054, 0.088388],
                                 dtype=np.float32))
-    assert_array_equal(arr[vocab['the']],
+    assert_array_equal(arr[vocab[b'the']],
                        np.array([-1.420859, 1.156857],
                                 dtype=np.float32))
-    assert_array_equal(arr[vocab['日本語']],
+    assert_array_equal(arr[vocab['日本語'.encode('utf-8')]],
                        np.array([-0.16799, 0.10951],
                                 dtype=np.float32))
 
@@ -73,17 +73,17 @@ the -1.420859 1.156857""".encode('utf-8'))
 
 def test_load_with_vocab(word2vec_text_file):
     vocab = dict((
-        ('</s>', 1),
-        ('日本語', 0)
+        (b'</s>', 1),
+        ('日本語'.encode('utf-8'), 0)
     ))
 
     arr = word2vec.load_with_vocab(word2vec_text_file, vocab)
     assert len(arr) == 2
     assert arr.dtype == np.float32
     # Machine epsilon is 5.96e-08 for float32
-    assert_array_equal(arr[vocab['</s>']],
+    assert_array_equal(arr[vocab[b'</s>']],
                        np.array([ 0.080054, 0.088388],
                                 dtype=np.float32))
-    assert_array_equal(arr[vocab['日本語']],
+    assert_array_equal(arr[vocab['日本語'.encode('utf-8')]],
                        np.array([-0.16799, 0.10951],
                                 dtype=np.float32))

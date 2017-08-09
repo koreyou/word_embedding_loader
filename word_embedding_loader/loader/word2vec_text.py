@@ -37,26 +37,19 @@ def _parse_line(line, dtype):
         token = data[0]
         v = list(map(dtype, data[1:]))
     except (ValueError, IndexError):
-        raise ParseError(
-            ('Parsing error in line: %s' % line.decode('utf-8')
-             ).encode('utf-8'))
+        raise ParseError(b'Parsing error in line: ' + line)
     return token, v
 
 
-def _load_line(line, dtype, size, encoding, unicode_errors):
+def _load_line(line, dtype, size):
     # Parse line and do a sanity check
     token, v = _parse_line(line, dtype)
     if len(v) != size:
-        raise ParseError(
-            ('Vector size did not match in line: %s'
-             % line.decode(encoding)).encode('utf-8'))
-    if encoding is not None:
-        token = token.decode(encoding, errors=unicode_errors)
+        raise ParseError(b'Vector size did not match in line: ' + line)
     return token, v
 
 
-def load_with_vocab(
-        fin, vocab, dtype=np.float32, encoding='utf-8', unicode_errors='strict'):
+def load_with_vocab(fin, vocab, dtype=np.float32):
     """
     Refer to :func:`word_embedding_loader.loader.glove.load_with_vocab` for the API.
     """
@@ -67,7 +60,7 @@ def load_with_vocab(
     arr = np.empty((len(vocab), size), dtype=dtype)
     arr.fill(np.NaN)
     for line in fin:
-        token, v = _load_line(line, dtype, size, encoding, unicode_errors)
+        token, v = _load_line(line, dtype, size)
         if token in vocab:
             arr[vocab[token], :] = v
     if np.any(np.isnan(arr)):
@@ -75,8 +68,7 @@ def load_with_vocab(
     return arr
 
 
-def load(fin, dtype=np.float32, max_vocab=None,
-         encoding='utf-8', unicode_errors='strict'):
+def load(fin, dtype=np.float32, max_vocab=None):
     """
     Refer to :func:`word_embedding_loader.loader.glove.load` for the API.
     """
@@ -93,17 +85,19 @@ def load(fin, dtype=np.float32, max_vocab=None,
     for n_line, line in enumerate(fin):
         if i >= words:
             break
-        token, v = _load_line(line, dtype, size, encoding, unicode_errors)
+        token, v = _load_line(line, dtype, size)
         if token in vocab:
-            parse_warn(
-                ('Duplicated vocabulary %s' % token).encode('utf-8'))
+            parse_warn(b'Duplicated vocabulary ' + token)
             continue
         arr[i, :] = v
         vocab[token] = i
         i += 1
     if i != words:
+        # Use + instead of formatting because python 3.4.* does not allow
+        # format with bytes
         parse_warn(
-            ('EOF before the defined size (read %d, expected %d)' % (i, words)
-             ).encode('utf-8'))
+            b'EOF before the defined size (read ' + bytes(i) + b', expected '
+            + bytes(words) + b')'
+        )
         arr = arr[:i, :]
     return arr, vocab

@@ -12,9 +12,9 @@ import six
 
 
 def _write_line(f, vec, word):
-    v_text = ' '.join(map(lambda v: six.u(str(v)), vec))
+    v_text = b' '.join(map(lambda v: six.text_type(v).encode('utf-8'), vec))
     # Avoid empty line at the end
-    f.write(('\n{} {}'.format(word.decode('utf-8'), v_text)).encode('utf-8'))
+    f.write(b'\n' + word + b' ' +  v_text)
 
 
 def save(f, arr, vocab):
