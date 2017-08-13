@@ -11,8 +11,8 @@ from __future__ import absolute_import, division, print_function, \
 import  six
 
 def _write_line(f, vec, word):
-    v_text = ' '.join(map(lambda c: six.u(str(c)), vec))
-    f.write(('{} {}'.format(word.decode('utf-8'), v_text)).encode('utf-8'))
+    v_text = b' '.join(map(lambda v: six.text_type(v).encode('utf-8'), vec))
+    f.write(word + b' ' + v_text)
 
 
 def save(f, arr, vocab):

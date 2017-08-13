@@ -38,8 +38,7 @@ def check_valid(line0, line1):
     return True
 
 
-cdef _load_with_vocab_impl(
-        FILE *f, vocabs, long long size, str encoding, bool is_encoded, str errors):
+cdef _load_with_vocab_impl(FILE *f, vocabs, long long size):
     cdef char ch
     cdef int l
     cdef char[100] vocab
@@ -52,10 +51,7 @@ cdef _load_with_vocab_impl(
         if i == words:
             break
         fscanf(f, "%s%n%c", &vocab, &l, &ch)
-        if is_encoded:
-            ustring = vocab[:l - 1].decode(encoding, errors=errors)
-        else:
-            ustring = <bytes>vocab[:l - 1]
+        ustring = <bytes>vocab[:l - 1]
         if ustring in vocabs:
             idx = vocabs[ustring]
             fread(&arr[idx, 0], sizeof(FLOAT), size, f)
@@ -66,26 +62,21 @@ cdef _load_with_vocab_impl(
     return arr
 
 
-def load_with_vocab(
-        fin, vocab, dtype=np.float32, encoding='utf-8', unicode_errors='strict'):
+def load_with_vocab(fin, vocab, dtype=np.float32):
     """
     Refer to :func:`word_embedding_loader.loader.glove.load_with_vocab` for the API.
     """
     cdef FILE *f = fdopen(fin.fileno(), 'rb') # attach the stream
     if (f) == NULL:
        raise IOError()
-    encoding = str(encoding)
-    unicode_errors = str(unicode_errors)
     cdef long long words, size
     fscanf(f, '%lld', &words)
     fscanf(f, '%lld', &size)
-    ret = _load_with_vocab_impl(
-        f, vocab, size, encoding, encoding is not None, unicode_errors)
+    ret = _load_with_vocab_impl(f, vocab, size)
     return ret.astype(dtype)
 
 
-cdef _load_impl(FILE *f, long long words, long long size, str encoding,
-                bool is_encoded, str errors):
+cdef _load_impl(FILE *f, long long words, long long size):
     cdef char ch
     cdef int l
     cdef char[100] vocab
@@ -96,25 +87,17 @@ cdef _load_impl(FILE *f, long long words, long long size, str encoding,
         if i >= words:
             break
         fscanf(f, "%s%n%c", &vocab, &l, &ch)
-        if is_encoded:
-            ustring = vocab[:l - 1].decode(encoding, errors=errors)
-            vocabs[ustring] = i
-        else:
-            vocabs[<bytes>vocab[:l - 1]] = i
+        vocabs[<bytes>vocab[:l - 1]] = i
         fread(&arr[i, 0], sizeof(FLOAT), size, f)
         i += 1
     return arr, vocabs
 
 
-def load(fin, dtype=np.float32, max_vocab=None,
-         encoding='utf-8', unicode_errors='strict'):
+def load(fin, dtype=np.float32, max_vocab=None):
     """
     Refer to :func:`word_embedding_loader.loader.glove.load` for the API.
     """
     cdef FILE *f = fdopen(fin.fileno(), 'rb') # attach the stream
-    if encoding is not None:
-        encoding = str(encoding)
-    unicode_errors = str(unicode_errors)
     if (f) == NULL:
        raise IOError()
     cdef long long words, size
@@ -124,7 +107,6 @@ def load(fin, dtype=np.float32, max_vocab=None,
         words = words
     else:
         words = min(max_vocab, words)
-    ret = _load_impl(f, words, size, encoding, encoding is not None,
-                     unicode_errors)
+    ret = _load_impl(f, words, size)
     arr, vocabs = ret
     return arr.astype(dtype), vocabs

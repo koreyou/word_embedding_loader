@@ -37,30 +37,22 @@ def check_valid(line0, line1):
     return True
 
 
-def _parse_line(line, dtype, encoding, unicode_errors):
+def _parse_line(line, dtype):
     data = line.strip().split(b' ')
     token = data[0]
     v = list(map(dtype, data[1:]))
-    if encoding is not None:
-        token = token.decode(encoding, errors=unicode_errors)
     return token, v
 
 
-def load_with_vocab(
-        fin, vocab, dtype=np.float32, encoding='utf-8', unicode_errors='strict'):
+def load_with_vocab(fin, vocab, dtype=np.float32):
     """
     Load word embedding file with predefined vocabulary
 
     Args:
         fin (File): File object to read. File should be open for reading ascii.
-        vocab (dict): Mapping from words (``unicode``) to vector indices
+        vocab (dict): Mapping from words (``bytes``) to vector indices
             (``int``).
         dtype (numpy.dtype): Element data type to use for the array.
-        encoding (bytes): Encoding of the input file as defined in ``codecs``
-            module of Python standard library.
-        unicode_errors (bytes): Set the error handling scheme. The default error
-            handler is 'strict' meaning that encoding errors raise ValueError.
-            Refer to ``codecs`` module for more information.
 
     Returns:
         numpy.ndarray: Word embedding representation vectors
@@ -68,24 +60,20 @@ def load_with_vocab(
     arr = None
     for line in fin:
         try:
-            token, v = _parse_line(line, dtype, encoding, unicode_errors)
+            token, v = _parse_line(line, dtype)
         except (ValueError, IndexError):
-            raise ParseError(
-                ('Parsing error in line: %s' % line.decode(encoding)).encode('utf-8'))
+            raise ParseError(b'Parsing error in line: ' + line)
         if token in vocab:
             if arr is None:
                 arr = np.empty((len(vocab), len(v)), dtype=dtype)
                 arr.fill(np.NaN)
             elif arr.shape[1] != len(v):
-                raise ParseError(
-                    ('Vector size did not match in line: %s'
-                     % line.decode(encoding)).encode('utf-8'))
+                raise ParseError(b'Vector size did not match in line: ' + line)
             arr[vocab[token], :] = np.array(v, dtype=dtype).reshape(1, -1)
     return arr
 
 
-def load(fin, dtype=np.float32, max_vocab=None, encoding='utf-8',
-         unicode_errors='strict'):
+def load(fin, dtype=np.float32, max_vocab=None):
     """
     Load word embedding file.
 
@@ -93,11 +81,6 @@ def load(fin, dtype=np.float32, max_vocab=None, encoding='utf-8',
         fin (File): File object to read. File should be open for reading ascii.
         dtype (numpy.dtype): Element data type to use for the array.
         max_vocab (int): Number of vocabulary to read.
-        encoding (bytes): Encoding of the input file as defined in ``codecs``
-            module of Python standard library.
-        unicode_errors (bytes): Set the error handling scheme. The default error
-            handler is 'strict' meaning that encoding errors raise ValueError.
-            Refer to ``codecs`` module for more information.
 
     Returns:
         numpy.ndarray: Word embedding representation vectors
@@ -111,21 +94,17 @@ def load(fin, dtype=np.float32, max_vocab=None, encoding='utf-8',
         if max_vocab is not None and i >= max_vocab:
             break
         try:
-            token, v = _parse_line(line, dtype, encoding, unicode_errors)
+            token, v = _parse_line(line, dtype)
         except (ValueError, IndexError):
-            raise ParseError(
-                ('Parsing error in line: %s' % line.decode(encoding)).encode('utf-8'))
+            raise ParseError(b'Parsing error in line: ' + line)
         if token in vocab:
-            parse_warn(
-                ('Duplicated vocabulary %s' % token).encode('utf-8'))
+            parse_warn(b'Duplicated vocabulary ' + token)
             continue
         if arr is None:
             arr = np.array(v, dtype=dtype).reshape(1, -1)
         else:
             if arr.shape[1] != len(v):
-                raise ParseError(
-                    ('Vector size did not match in line: %s'
-                     % line.decode(encoding)).encode('utf-8'))
+                raise ParseError(b'Vector size did not match in line: ' + line)
             arr = np.append(arr, [v], axis=0)
         vocab[token] = i
         i += 1

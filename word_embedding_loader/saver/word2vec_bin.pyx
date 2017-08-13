@@ -41,7 +41,7 @@ cdef int _save_impl(FILE *f, np.ndarray[FLOAT, ndim=2, mode="c"] arr, vector[pai
     return ret
 
 
-def save(f, arr, vocab, counts=None, encoding='utf-8', unicode_errors='strict'):
+def save(f, arr, vocab, counts=None):
     u"""
     Refer to :func:`word_embedding_loader.saver.glove.save` for the API.
     """
