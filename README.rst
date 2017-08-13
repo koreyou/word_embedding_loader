@@ -10,7 +10,7 @@ Loaders and savers for different implentations of `word embedding <https://en.wi
    wv = WordEmbedding.load('path/to/embedding.bin')
 
    # This project provides minimum interface for word embedding
-   print wv.vectors[wv.vocab[u'is']]
+   print wv.vectors[wv.vocab['is']]
 
    # Modify and save word embedding file with arbitrary format
    wv.save('path/to/save.txt', 'word2vec', binary=False)
@@ -36,6 +36,21 @@ Sometimes, you want combine an external program with word embedding file of your
    # Get help for command/subcommand
    word-embedding-loader --help
    word-embedding-loader convert --help
+
+Issues with encoding
+--------------------
+
+This project does decode vocab. It is up to users to determine and decode bytes.
+
+.. code:: python
+
+    decoded_vocab = {k.decode('latin-1'): v for k, v in wv.vocab.iteritems()}
+
+
+.. notes::
+
+   Encoding of pretrained word2vec is latin-1. Encoding of pretrained
+   glove is utf-8
 
 
 Development
