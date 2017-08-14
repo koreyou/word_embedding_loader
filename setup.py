@@ -13,6 +13,7 @@ cython_modules = [
 
 def _cythonize(extensions, apply_cythonize):
     import numpy
+    import six
     ext = '.pyx' if apply_cythonize else '.cpp'
     extensions = [
         Extension(
@@ -20,7 +21,7 @@ def _cythonize(extensions, apply_cythonize):
             language="c++"
         ) for mod in extensions
     ]
-    for i in xrange(len(extensions)):
+    for i in six.moves.xrange(len(extensions)):
         extensions[i].include_dirs.append(numpy.get_include())
         # Add signiture for Sphinx
         extensions[i].cython_directives = {"embedsignature": True}
@@ -73,8 +74,9 @@ except IOError:
 
 
 name = 'WordEmbeddingLoader'
-version = '0.1'
-release = '0.1.0'
+exec(open('word_embedding_loader/_version.py').read())
+release = __version__
+version = '.'.join(release.split('.')[:2])
 
 setup(
     name=name,
@@ -98,7 +100,8 @@ setup(
     cmdclass = {'sdist': sdist},
     install_requires=[
         'Click',
-        'numpy>=1.10'
+        'numpy>=1.10',
+        'six'
     ],
     entry_points = {
         'console_scripts': ['word-embedding-loader=word_embedding_loader.cli:cli'],
@@ -108,10 +111,10 @@ setup(
             'project': ('setup.py', name),
             'version': ('setup.py', version),
             'release': ('setup.py', release)}},
-    setup_requires = ['pytest-runner',
+    setup_requires = ['Cython',
                       'numpy>=1.10',
+                      'six'
                       ],
-    tests_require = ['pytest', 'pytest-cov', 'Cython'],
     classifiers=[
         "Environment :: Console",
         "Development Status :: 4 - Beta",
@@ -121,6 +124,8 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
         "Programming Language :: Cython",
         "Topic :: Documentation :: Sphinx",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",

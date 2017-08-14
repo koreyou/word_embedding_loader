@@ -1,23 +1,25 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function
+from __future__ import absolute_import, division, print_function, \
+    unicode_literals
 
-import StringIO
+import io
 
-import pytest
 import numpy as np
 from numpy.testing import assert_array_equal
+from six.moves import range
 
-from word_embedding_loader import word_embedding
 from word_embedding_loader import loader
+from word_embedding_loader import word_embedding
 
 
 def test__get_two_lines():
-    f = StringIO.StringIO(u"""2 3
+    f = io.BytesIO("""2 3
 </s> 0.080054 0.088388 -0.07660
-the -1.420859 1.156857 0.744776""")
+the -1.420859 1.156857 0.744776""".encode('utf-8'))
     l0, l1 = word_embedding._get_two_lines(f)
-    assert l0 == u"2 3\n"
-    assert l1 == u"</s> 0.080054 0.088388 -0.07660\n"
+    # It s
+    assert l0 == b"2 3\n"
+    assert l1 == b"</s> 0.080054 0.088388 -0.07660\n"
 
 
 class TestClassifyFormat:
@@ -47,23 +49,21 @@ def test_WordEmbedding___load__(glove_file):
     obj = word_embedding.WordEmbedding.load(glove_file.name)
     vocab = obj.vocab
     arr = obj.vectors
-    assert u'the' in vocab
-    assert u',' in vocab
-    assert u'日本語' in vocab
+    assert b'the' in vocab
+    assert b',' in vocab
+    assert '日本語'.encode('utf-8') in vocab
     assert len(obj) == 3
     assert arr.dtype == np.float32
 
-    assert obj._load_cond.mod == word_embedding._glove
-    assert obj._load_cond.encoding == 'utf-8'
-    assert obj._load_cond.unicode_errors == 'strict'
+    assert obj._load_cond == word_embedding._glove
 
-    assert_array_equal(arr[vocab[u'the']],
+    assert_array_equal(arr[vocab[b'the']],
                        np.array([0.418, 0.24968, -0.41242, 0.1217],
                                 dtype=np.float32))
-    assert_array_equal(arr[vocab[u',']],
+    assert_array_equal(arr[vocab[b',']],
                        np.array([0.013441, 0.23682, -0.16899, 0.40951],
                                 dtype=np.float32))
-    assert_array_equal(arr[vocab[u'日本語']],
+    assert_array_equal(arr[vocab['日本語'.encode('utf-8')]],
                        np.array([0.15164, 0.30177, -0.16763, 0.17684],
                                 dtype=np.float32))
 
@@ -73,19 +73,19 @@ def test_WordEmbedding___load___vocab(word2vec_text_file, vocab_file):
         word2vec_text_file.name, vocab=vocab_file.name)
     vocab = obj.vocab
     arr = obj.vectors
-    assert u'</s>' in vocab
-    assert u'the' not in vocab
-    assert u'日本語' in vocab
+    assert b'</s>' in vocab
+    assert b'the' not in vocab
+    assert '日本語'.encode('utf-8') in vocab
     assert len(obj) == 2
     assert arr.dtype == np.float32
 
-    assert vocab[u'日本語'] == 0
-    assert vocab[u'</s>'] == 1
+    assert vocab['日本語'.encode('utf-8')] == 0
+    assert vocab[b'</s>'] == 1
 
-    assert_array_equal(arr[vocab[u'</s>']],
+    assert_array_equal(arr[vocab[b'</s>']],
                        np.array([ 0.080054, 0.088388],
                                 dtype=np.float32))
-    assert_array_equal(arr[vocab[u'日本語']],
+    assert_array_equal(arr[vocab['日本語'.encode('utf-8')]],
                        np.array([-0.16799, 0.10951],
                                 dtype=np.float32))
 
@@ -95,24 +95,33 @@ def test_WordEmbedding___load___vocab_maxvocab(word2vec_text_file, vocab_file):
         word2vec_text_file.name, vocab=vocab_file.name, max_vocab=1)
     vocab = obj.vocab
     arr = obj.vectors
-    assert u'</s>' not in vocab
-    assert u'the' not in vocab
-    assert u'日本語' in vocab
+    assert b'</s>' not in vocab
+    assert b'the' not in vocab
+    assert '日本語'.encode('utf-8') in vocab
     assert len(obj) == 1
     assert arr.dtype == np.float32
 
-    assert vocab[u'日本語'] == 0
-    assert_array_equal(arr[vocab[u'日本語']],
+    assert vocab['日本語'.encode('utf-8')] == 0
+    assert_array_equal(arr[vocab['日本語'.encode('utf-8')]],
                        np.array([-0.16799, 0.10951],
                                 dtype=np.float32))
 
 
-def test_WordEmbedding___save__(word_embedding_data, tmpdir):
-    arr_input, _, vocab_expected = word_embedding_data
-    obj = word_embedding.WordEmbedding(arr_input, vocab_expected)
+def test_WordEmbedding___save__(tmpdir):
+    vocab = {
+        b'</s>': 0,
+        b'the': 1,
+        '日本語'.encode('utf-8'): 2
+    }
+    arr_input = np.array(
+        [[0.418, 0.24968, -0.41242, 0.1217],
+         [0.013441, 0.23682, -0.16899, 0.40951],
+         [0.15164, 0.30177, -0.16763, 0.17684]], dtype=np.float32)
+
+    obj = word_embedding.WordEmbedding(arr_input, vocab)
     tmp_path = tmpdir.join('WordEmbedding__save.txt').strpath
     obj.save(tmp_path, format="word2vec", binary=True)
-    with open(tmp_path, 'r') as f:
+    with open(tmp_path, 'rb') as f:
         arr, vocab = loader.word2vec_bin.load(f, dtype=np.float32)
     assert_array_equal(arr, arr_input)
-    assert vocab_expected == vocab
+    assert vocab == vocab

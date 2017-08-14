@@ -1,4 +1,4 @@
-u"""
+"""
 loader module provides actual implementation of the file loaders.
 
 .. warning:: This is an internal implementation. API may change without

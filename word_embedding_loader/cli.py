@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function
+# Do NOT use unicode_literals; let click handle unicode decoding
+
 from collections import OrderedDict
 
 import click
 
 from word_embedding_loader import word_embedding
+import six
 
 
 # Each value is (description, format string, is_binary) tuple
@@ -28,9 +32,9 @@ def cli():
 @cli.command()
 @click.argument('inputfile', type=click.Path(exists=True))
 @click.argument('outputfile', type=click.Path())
-@click.option('-t', '--to-format', type=click.Choice(_output_choices.keys()),
+@click.option('-t', '--to-format', type=click.Choice(list(_output_choices.keys())),
               help='Target format')
-@click.option('-f', '--from-format', type=click.Choice(_input_choices.keys()),
+@click.option('-f', '--from-format', type=click.Choice(list(_input_choices.keys())),
               default='auto', help='Source format. It will guess format from content if not given.')
 def convert(outputfile, inputfile, to_format, from_format):
     """
@@ -48,7 +52,7 @@ def _echo_format_result(name):
 
 
 @cli.command()
-@click.argument('inputfile', type=click.File())
+@click.argument('inputfile', type=click.File('rb'))
 def check_format(inputfile):
     """
     Check format of inputfile.
@@ -72,5 +76,5 @@ def list():
     choice_len = max(map(len, _input_choices.keys()))
     tmpl = "  {:<%d}: {}\n" % choice_len
     text = ''.join(map(
-        lambda (k, v): tmpl.format(k, v[0]), _input_choices.iteritems()))
+        lambda k_v: tmpl.format(k_v[0], k_v[1][0]), six.iteritems(_input_choices)))
     click.echo(text)

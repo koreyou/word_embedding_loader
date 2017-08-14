@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function
+from __future__ import absolute_import, division, print_function, \
+    unicode_literals
+import six
 
 __all__ = ["WordEmbedding", "classify_format"]
 
@@ -31,7 +33,7 @@ def _select_module(format, binary):
         mod = _glove
         if binary:
             warnings.warn(
-                "Argument binary=True for glove loader is ignored.",
+                b"Argument binary=True for glove loader is ignored.",
                 UserWarning)
     elif format == 'word2vec':
         if binary:
@@ -39,7 +41,7 @@ def _select_module(format, binary):
         else:
             mod = _word2vec_text
     else:
-        raise NameError('Unknown format "%s"' % format)
+        raise NameError(('Unknown format "%s"' % format).encode('utf-8'))
     return mod
 
 
@@ -47,10 +49,10 @@ def _get_two_lines(f):
     """
     Get the first and second lines
     Args:
-        f (filelike):
+        f (filelike): File that is opened for ascii.
 
     Returns:
-        unicode
+        bytes
 
     """
     cur_pos = f.tell()
@@ -81,18 +83,11 @@ def classify_format(f):
     elif loader.word2vec_bin.check_valid(l0, l1):
         return _word2vec_bin
     else:
-        raise OSError("Invalid format")
-
-
-class LoadCondition(object):
-    def __init__(self, mod, encoding, unicode_errors):
-        self.mod = mod
-        self.encoding = encoding
-        self.unicode_errors = unicode_errors
+        raise OSError(b"Invalid format")
 
 
 class WordEmbedding(object):
-    u"""
+    """
     Main API for loading and saving of pretrained word embedding files.
 
     .. note:: You do not need to call initializer directly in normal usage.
@@ -101,30 +96,32 @@ class WordEmbedding(object):
 
     Args:
         vectors (numpy.ndarray): Word embedding representation vectors
-        vocab (dict): Mapping from words (unicode) to vector
+        vocab (dict): Mapping from words (bytes) to vector
             indices (int).
-        freqs (dict): Mapping from words (unicode) to word frequency counts
+        freqs (dict): Mapping from words (bytes) to word frequency counts
             (int).
 
     Attributes:
         vectors (numpy.ndarray): Word embedding vectors in shape of
             ``(vocabulary size, feature dimension)``.
-        vocab (dict): Mapping from words (unicode) to vector indices (int).
-        freqs (dict or None): Mapping from words (unicode) to frequency counts
+        vocab (dict): Mapping from words (bytes) to vector indices (int)
+        freqs (dict or None): Mapping from words (bytes) to frequency counts
             (int).
 
     """
     def __init__(self, vectors, vocab, freqs=None):
         if not isinstance(vectors, np.ndarray):
             raise TypeError(
-                "Expected numpy.ndarray for vectors, %s found." % type(vectors))
+                ("Expected numpy.ndarray for vectors, %s found."% type(vectors)
+                 ).encode('utf-8'))
         if not isinstance(vocab, dict):
             raise TypeError(
-                "Expected dict for vocab, %s found." % type(vectors))
+                ("Expected dict for vocab, %s found." % type(vectors)
+                 ).encode('utf-8'))
         if len(vectors) != len(vocab):
             warnings.warn(
-                "vectors and vocab size unmatch (%d != %d)" %
-                (len(vectors), len(vocab)))
+                ("vectors and vocab size unmatch (%d != %d)" %
+                 (len(vectors), len(vocab))).encode('utf-8'))
         self.vectors = vectors
         self.vocab = vocab
         self.freqs = freqs
@@ -132,9 +129,8 @@ class WordEmbedding(object):
 
     @classmethod
     def load(cls, path, vocab=None, dtype=np.float32, max_vocab=None,
-             format=None, binary=False, encoding='utf-8',
-             unicode_errors='strict'):
-        u"""
+             format=None, binary=False):
+        """
         Load pretrained word embedding from a file.
 
         Args:
@@ -158,47 +154,37 @@ class WordEmbedding(object):
                 `word2vec <https://code.google.com/archive/p/word2vec/>`_ with
                 ``-binary 1`` option. If ``format`` is ``'glove'`` or ``None``,
                 this argument is simply ignored
-            encoding (str): Encoding of the input file as defined in ``codecs``
-                module of Python standard library.
-            unicode_errors (str): Set the error handling scheme. The default
-                error handler is 'strict' meaning that encoding errors raise
-                ``ValueError``. Refer to ``codecs`` module for more information.
 
         Returns:
             :class:`~word_embedding_loader.word_embedding.WordEmbedding`
         """
         freqs = None
         if vocab is not None:
-            with open(vocab, mode='r') as f:
-                freqs = loader.vocab.load_vocab(
-                    f, encoding=encoding, errors=unicode_errors)
+            with open(vocab, mode='rb') as f:
+                freqs = loader.vocab.load_vocab(f)
             # Create vocab from freqs
             # [:None] gives all the list member
             vocab = {k: i for i, (k, v) in enumerate(
-                    sorted(freqs.iteritems(),
-                           key=lambda (k, v): v, reverse=True)[:max_vocab])}
+                     sorted(six.iteritems(freqs),
+                            key=lambda k_v: k_v[1], reverse=True)[:max_vocab])}
 
-        with open(path, mode='r') as f:
+        with open(path, mode='rb') as f:
             if format is None:
                 mod = classify_format(f)
             else:
                 mod = _select_module(format, binary)
             if vocab is not None:
-                arr = mod.loader.load_with_vocab(
-                    f, vocab, dtype=dtype, encoding=encoding,
-                    unicode_errors=unicode_errors)
+                arr = mod.loader.load_with_vocab(f, vocab, dtype=dtype)
                 v = vocab
             else:
-                arr, v = mod.loader.load(
-                    f, max_vocab=max_vocab, dtype=dtype,
-                    unicode_errors=unicode_errors, encoding=encoding)
+                arr, v = mod.loader.load(f, max_vocab=max_vocab, dtype=dtype)
+
         obj = cls(arr, v, freqs)
-        obj._load_cond = LoadCondition(mod, encoding, unicode_errors)
+        obj._load_cond = mod
         return obj
 
-    def save(self, path, format, encoding='utf-8', unicode_errors='strict',
-             binary=False, use_load_condition=False):
-        u"""
+    def save(self, path, format, binary=False, use_load_condition=False):
+        """
         Save object as word embedding file. For most arguments, you should refer
         to :func:`~word_embedding_loader.word_embedding.WordEmbedding.load`.
 
@@ -215,25 +201,24 @@ class WordEmbedding(object):
         if use_load_condition:
             if self._load_cond is None:
                 raise ValueError(
-                    "use_load_condition was specified but the object is not "
-                    "loaded from a file")
+                    b"use_load_condition was specified but the object is not "
+                    b"loaded from a file")
             # Use load condition
-            mod = self._load_cond.mod
-            encoding = self._load_cond.encoding
-            unicode_errors = self._load_cond.unicode_errors
+            mod = self._load_cond
         else:
             mod = _select_module(format, binary)
 
-        def _mapper(item):
-            key, value = item
-            return (key.encode(encoding, errors=unicode_errors), value)
 
         if self.freqs is None:
-            itr = map(_mapper, sorted(self.vocab.iteritems(), key=lambda (k, v): v))
+            itr = list(
+                sorted(six.iteritems(self.vocab), key=lambda k_v: k_v[1]))
         else:
-            itr = map(_mapper, sorted(self.vocab.iteritems(), key=lambda (k, v): self.freqs[k], reverse=True))
+            itr = list(
+                sorted(six.iteritems(self.vocab),
+                       key=lambda k_v: self.freqs[k_v[0]], reverse=True)
+            )
 
-        with open(path, mode='w') as f:
+        with open(path, mode='wb') as f:
             mod.saver.save(f, self.vectors, itr)
 
     def __len__(self):
@@ -241,7 +226,7 @@ class WordEmbedding(object):
 
     @property
     def size(self):
-        u"""
+        """
         Feature dimension of the loaded vector.
 
         Returns:
