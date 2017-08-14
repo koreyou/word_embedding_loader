@@ -50,8 +50,10 @@ cdef _load_with_vocab_impl(FILE *f, vocabs, long long size):
     while True:
         if i == words:
             break
+        # Remove any new line/spaces between vocabulary
+        fscanf(f, "%*[ \n\r]")
         fscanf(f, "%s%n%c", &vocab, &l, &ch)
-        ustring = <bytes>vocab[:l - 1]
+        ustring = <bytes>vocab[:l]
         if ustring in vocabs:
             idx = vocabs[ustring]
             fread(&arr[idx, 0], sizeof(FLOAT), size, f)
@@ -86,8 +88,10 @@ cdef _load_impl(FILE *f, long long words, long long size):
     while True:
         if i >= words:
             break
+        # Remove any new line/spaces between vocabulary
+        fscanf(f, "%*[ \n\r]")
         fscanf(f, "%s%n%c", &vocab, &l, &ch)
-        vocabs[<bytes>vocab[:l - 1]] = i
+        vocabs[<bytes>vocab[:l]] = i
         fread(&arr[i, 0], sizeof(FLOAT), size, f)
         i += 1
     return arr, vocabs
