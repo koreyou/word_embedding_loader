@@ -135,10 +135,10 @@ class WordEmbedding(object):
 
         Args:
             path (str): Path of file to load.
-            vocab (str or None): Path to vocabulary file created by word2vec
-                with ``-save-vocab <file>`` option. If vocab is given,
-                :py:attr:`~vectors` and :py:attr:`~vocab` is ordered in
-                descending order of frequency.
+            vocab (str or set or None): If ``str``, it is assumed to be path to
+                vocabulary file created by word2vec with
+                ``-save-vocab <file>`` option.
+                If ``set`` it will only load words that are in vocab.
             dtype (numpy.dtype): Element data type to use for the array.
             max_vocab (int): Number of vocabulary to read.
             format (str or None): Format of the file. ``'word2vec'`` for file
@@ -159,27 +159,37 @@ class WordEmbedding(object):
             :class:`~word_embedding_loader.word_embedding.WordEmbedding`
         """
         freqs = None
-        if vocab is not None:
+        vocab_dict = None
+        if isinstance(vocab, six.string_types):
             with open(vocab, mode='rb') as f:
                 freqs = loader.vocab.load_vocab(f)
             # Create vocab from freqs
             # [:None] gives all the list member
-            vocab = {k: i for i, (k, v) in enumerate(
-                     sorted(six.iteritems(freqs),
-                            key=lambda k_v: k_v[1], reverse=True)[:max_vocab])}
+            vocab_dict = {k: i for i, (k, v) in enumerate(
+                 sorted(six.iteritems(freqs),
+                 key=lambda k_v: k_v[1], reverse=True)[:max_vocab])}
+        elif isinstance(vocab, list):
+            vocab = set(vocab)
+        elif isinstance(vocab, set) or vocab is None:
+            pass
+        else:
+            raise TypeError(
+                'Expected set, str or None for vocab but %s is given.' %
+                type(vocab)
+            )
 
         with open(path, mode='rb') as f:
             if format is None:
                 mod = classify_format(f)
             else:
                 mod = _select_module(format, binary)
-            if vocab is not None:
-                arr = mod.loader.load_with_vocab(f, vocab, dtype=dtype)
-                v = vocab
+            if vocab_dict is not None:
+                arr = mod.loader.load_with_vocab(f, vocab_dict, dtype=dtype)
             else:
-                arr, v = mod.loader.load(f, max_vocab=max_vocab, dtype=dtype)
+                arr, vocab_dict = mod.loader.load(
+                    f, max_vocab=max_vocab, dtype=dtype, vocab=vocab)
 
-        obj = cls(arr, v, freqs)
+        obj = cls(arr, vocab_dict, freqs)
         obj._load_cond = mod
         return obj
 
