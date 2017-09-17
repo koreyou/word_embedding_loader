@@ -78,11 +78,12 @@ def load_with_vocab(fin, vocab, dtype=np.float32):
     return ret.astype(dtype)
 
 
-cdef _load_impl(FILE *f, long long words, long long size):
+cdef _load_impl(FILE *f, long long words, long long size, vocab):
     cdef char ch
     cdef int l
-    cdef char[100] vocab
-    vocabs = dict()
+    cdef char[100] v
+    vocab_dic = dict()
+    cdef bytes v_byte
     cdef np.ndarray[FLOAT, ndim=2, mode="c"] arr = np.zeros([words, size], dtype=np.float32)
     cdef int i = 0
     while True:
@@ -90,14 +91,17 @@ cdef _load_impl(FILE *f, long long words, long long size):
             break
         # Remove any new line/spaces between vocabulary
         fscanf(f, "%*[ \n\r]")
-        fscanf(f, "%s%n%c", &vocab, &l, &ch)
-        vocabs[<bytes>vocab[:l]] = i
+        fscanf(f, "%s%n%c", &v, &l, &ch)
+        v_byte = <bytes>v[:l]
+        if vocab is not None and (v_byte not in vocab):
+            continue
+        vocab_dic[v_byte] = i
         fread(&arr[i, 0], sizeof(FLOAT), size, f)
         i += 1
-    return arr, vocabs
+    return arr, vocab_dic
 
 
-def load(fin, dtype=np.float32, max_vocab=None):
+def load(fin, dtype=np.float32, max_vocab=None, vocab=None):
     """
     Refer to :func:`word_embedding_loader.loader.glove.load` for the API.
     """
@@ -105,12 +109,24 @@ def load(fin, dtype=np.float32, max_vocab=None):
     if (f) == NULL:
        raise IOError()
     cdef long long words, size
+
     fscanf(f, '%lld', &words)
     fscanf(f, '%lld', &size)
     if max_vocab is None:
         words = words
     else:
         words = min(max_vocab, words)
-    ret = _load_impl(f, words, size)
-    arr, vocabs = ret
-    return arr.astype(dtype), vocabs
+    ret = _load_impl(f, words, size, vocab)
+    arr, vocab_dic = ret
+
+    if vocab is None and len(vocab_dic) != words:
+        # this is expected behavior when vocab is provided
+        # Use + instead of formatting because python 3.4.* does not allow
+        # format with bytes
+        parse_warn(
+            b'EOF before the defined size (read ' + bytes(len(vocab_dic)) + b', expected '
+            + bytes(words) + b')'
+        )
+    arr = arr[:len(vocab_dic), :]
+
+    return arr.astype(dtype), vocab_dic

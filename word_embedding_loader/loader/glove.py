@@ -73,7 +73,7 @@ def load_with_vocab(fin, vocab, dtype=np.float32):
     return arr
 
 
-def load(fin, dtype=np.float32, max_vocab=None):
+def load(fin, dtype=np.float32, max_vocab=None, vocab=None):
     """
     Load word embedding file.
 
@@ -81,13 +81,15 @@ def load(fin, dtype=np.float32, max_vocab=None):
         fin (File): File object to read. File should be open for reading ascii.
         dtype (numpy.dtype): Element data type to use for the array.
         max_vocab (int): Number of vocabulary to read.
+        vocab (set): words (``bytes``) to use. Ones not in vocab is simply
+            ignored.
 
     Returns:
         numpy.ndarray: Word embedding representation vectors
         dict: Mapping from words to vector indices.
 
     """
-    vocab = {}
+    vocab_dic = {}
     arr = None
     i = 0
     for line in fin:
@@ -97,8 +99,10 @@ def load(fin, dtype=np.float32, max_vocab=None):
             token, v = _parse_line(line, dtype)
         except (ValueError, IndexError):
             raise ParseError(b'Parsing error in line: ' + line)
-        if token in vocab:
+        if token in vocab_dic:
             parse_warn(b'Duplicated vocabulary ' + token)
+            continue
+        if vocab is not None and token not in vocab:
             continue
         if arr is None:
             arr = np.array(v, dtype=dtype).reshape(1, -1)
@@ -106,6 +110,6 @@ def load(fin, dtype=np.float32, max_vocab=None):
             if arr.shape[1] != len(v):
                 raise ParseError(b'Vector size did not match in line: ' + line)
             arr = np.append(arr, [v], axis=0)
-        vocab[token] = i
+        vocab_dic[token] = i
         i += 1
-    return arr, vocab
+    return arr, vocab_dic

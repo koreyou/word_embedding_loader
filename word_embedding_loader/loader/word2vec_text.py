@@ -68,11 +68,11 @@ def load_with_vocab(fin, vocab, dtype=np.float32):
     return arr
 
 
-def load(fin, dtype=np.float32, max_vocab=None):
+def load(fin, dtype=np.float32, max_vocab=None, vocab=None):
     """
     Refer to :func:`word_embedding_loader.loader.glove.load` for the API.
     """
-    vocab = {}
+    vocab_dic = {}
     line = next(fin)
     data = line.strip().split(b' ')
     assert len(data) == 2
@@ -86,18 +86,21 @@ def load(fin, dtype=np.float32, max_vocab=None):
         if i >= words:
             break
         token, v = _load_line(line, dtype, size)
-        if token in vocab:
+        if token in vocab_dic:
             parse_warn(b'Duplicated vocabulary ' + token)
             continue
+        if vocab is not None and token not in vocab:
+            continue
         arr[i, :] = v
-        vocab[token] = i
+        vocab_dic[token] = i
         i += 1
-    if i != words:
+    if vocab is None and i != words:
+        # this is expected behavior when vocab is provided
         # Use + instead of formatting because python 3.4.* does not allow
         # format with bytes
         parse_warn(
             b'EOF before the defined size (read ' + bytes(i) + b', expected '
             + bytes(words) + b')'
         )
-        arr = arr[:i, :]
-    return arr, vocab
+    arr = arr[:i, :]
+    return arr, vocab_dic
