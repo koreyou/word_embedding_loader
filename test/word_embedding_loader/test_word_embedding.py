@@ -7,6 +7,7 @@ import io
 import numpy as np
 from numpy.testing import assert_array_equal
 from six.moves import range
+import pytest
 
 from word_embedding_loader import loader
 from word_embedding_loader import word_embedding
@@ -66,6 +67,32 @@ def test_WordEmbedding___load__(glove_file):
     assert_array_equal(arr[vocab['日本語'.encode('utf-8')]],
                        np.array([0.15164, 0.30177, -0.16763, 0.17684],
                                 dtype=np.float32))
+
+
+def test_WordEmbedding___load__typeerror(glove_file):
+    with pytest.raises(TypeError):
+        word_embedding.WordEmbedding.load(glove_file.name, vocab={})
+
+
+def test_WordEmbedding___load__vocab_set(glove_file):
+    vocab = {b',', '日本語'.encode('utf-8')}
+    obj = word_embedding.WordEmbedding.load(glove_file.name, vocab=vocab)
+    vocab = obj.vocab
+    arr = obj.vectors
+    assert b',' in vocab
+    assert '日本語'.encode('utf-8') in vocab
+    assert len(obj) == 2
+    assert arr.dtype == np.float32
+
+    assert obj._load_cond == word_embedding._glove
+
+    assert_array_equal(arr[vocab[b',']],
+                       np.array([0.013441, 0.23682, -0.16899, 0.40951],
+                                dtype=np.float32))
+    assert_array_equal(arr[vocab['日本語'.encode('utf-8')]],
+                       np.array([0.15164, 0.30177, -0.16763, 0.17684],
+                                dtype=np.float32))
+
 
 
 def test_WordEmbedding___load___vocab(word2vec_text_file, vocab_file):

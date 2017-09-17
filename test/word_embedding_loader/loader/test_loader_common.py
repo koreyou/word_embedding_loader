@@ -25,3 +25,12 @@ def test_max_vocab(context, n, expected):
     arr, vocab = module.load(f, max_vocab=n)
     assert len(arr) == expected
     assert len(vocab) == expected
+
+
+def test_load_with_vocab_set(context):
+    vocab = {'日本語'.encode('utf-8')}
+    module, f = context
+    arr, vocab = module.load(f, vocab=vocab)
+    assert '日本語'.encode('utf-8') in vocab
+    assert len(vocab) == 1
+    assert len(arr) == 1
