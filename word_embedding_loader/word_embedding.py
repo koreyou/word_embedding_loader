@@ -9,7 +9,7 @@ import warnings
 
 import numpy as np
 
-from word_embedding_loader import loader, saver
+from word_embedding_loader import loader, saver, util
 
 
 # Mimick namespace
@@ -242,3 +242,31 @@ class WordEmbedding(object):
             int
         """
         return self.vectors.shape[1]
+
+    def resize(self, size):
+        """
+        Reduce number of vocabulary in place.
+
+        Args:
+            size (int): new size
+
+        Returns:
+            ~WordEmbedding: Returns reference to self
+        """
+        if size < len(self):
+            n = len(self) - size
+            if self.freqs is not None:
+                del_keys = [
+                    k for k, v in sorted(
+                        six.iteritems(self.freqs), key=lambda k_v: k_v[1])[:n]]
+            else:
+                del_keys = [
+                    k for k, v in six.iteritems(self.vocab) if v >= size]
+            assert len(del_keys) == n
+            for k in del_keys:
+                self.vocab, self.vectors, _ = \
+                    util.remove_vocab(self.vocab, self.vectors, k)
+                if self.freqs is not None:
+                    del self.freqs[k]
+        return self
+

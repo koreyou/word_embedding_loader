@@ -181,3 +181,64 @@ def test_WordEmbedding___save__(tmpdir):
         arr, vocab = loader.word2vec_bin.load(f, dtype=np.float32)
     assert_array_equal(arr, arr_input)
     assert vocab == vocab
+
+
+def test_WordEmbedding_resize():
+    vocab = {
+        b'</s>': 0,
+        b'the': 1,
+        '日本語'.encode('utf-8'): 2
+    }
+    arr_input = np.array(
+        [[0.418, 0.24968, -0.41242, 0.1217],
+         [0.013441, 0.23682, -0.16899, 0.40951],
+         [0.15164, 0.30177, -0.16763, 0.17684]], dtype=np.float32)
+
+    obj = word_embedding.WordEmbedding(arr_input, vocab)
+    obj.resize(2)
+
+    vocab_e = {
+        b'</s>': 0,
+        b'the': 1
+    }
+    arr_e = np.array(
+        [[0.418, 0.24968, -0.41242, 0.1217],
+         [0.013441, 0.23682, -0.16899, 0.40951]], dtype=np.float32)
+
+    assert_array_equal(obj.vectors, arr_e)
+    assert obj.vocab == vocab_e
+
+
+def test_WordEmbedding_resize_freq():
+    vocab = {
+        b'</s>': 0,
+        b'the': 1,
+        '日本語'.encode('utf-8'): 2
+    }
+    freqs = {
+        b'</s>': 100,
+        b'the': 1,
+        '日本語'.encode('utf-8'): 2
+    }
+    arr_input = np.array(
+        [[0.418, 0.24968, -0.41242, 0.1217],
+         [0.013441, 0.23682, -0.16899, 0.40951],
+         [0.15164, 0.30177, -0.16763, 0.17684]], dtype=np.float32)
+
+    obj = word_embedding.WordEmbedding(arr_input, vocab, freqs=freqs)
+    obj.resize(2)
+
+    vocab_e = {
+        b'</s>': 0,
+        '日本語'.encode('utf-8'): 1
+    }
+    arr_e = np.array(
+        [[0.418, 0.24968, -0.41242, 0.1217],
+         [0.15164, 0.30177, -0.16763, 0.17684]], dtype=np.float32)
+    freqs_e = {
+        b'</s>': 100,
+        '日本語'.encode('utf-8'): 2
+    }
+    assert_array_equal(obj.vectors, arr_e)
+    assert obj.vocab == vocab_e
+    assert obj.freqs == freqs_e
