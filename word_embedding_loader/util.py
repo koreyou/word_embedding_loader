@@ -48,8 +48,9 @@ def create_unk_least_common(we, n):
                              axis=0)
 
 
-def create_random_vector(size, std, dtype):
+def create_random_vector(size, std, dtype, seed=None):
     assert std > 0.
+    numpy.random.seed(seed)
     return numpy.random.normal(0., std, (size, )).astype(dtype)
 
 
