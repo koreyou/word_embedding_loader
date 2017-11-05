@@ -22,10 +22,12 @@ from word_embedding_loader import ParseError, parse_warn
 ctypedef np.float32_t FLOAT
 
 
-def check_valid(line0, line1):
+def check_valid(path):
     """
     Check :func:`word_embedding_loader.loader.glove.check_valid` for the API.
     """
+    with open(path, mode='rb') as f:
+        line0 = f.readline()
     # Only check the first line
     data0 = line0.split(b' ')
     if len(data0) != 2:

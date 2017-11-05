@@ -45,40 +45,24 @@ def _select_module(format, binary):
     return mod
 
 
-def _get_two_lines(f):
-    """
-    Get the first and second lines
-    Args:
-        f (filelike): File that is opened for ascii.
-
-    Returns:
-        bytes
-
-    """
-    l0 = f.readline()
-    l1 = f.readline()
-    return l0, l1
-
-
-def classify_format(f):
+def classify_format(path):
     """
     Determine the format of word embedding file by their content. This operation
     only looks at the first two lines and does not check the sanity of input
     file.
 
     Args:
-        f (Filelike):
+        path (str):
 
     Returns:
         class
 
     """
-    l0, l1 = _get_two_lines(f)
-    if loader.glove.check_valid(l0, l1):
+    if loader.glove.check_valid(path):
         return _glove
-    elif loader.word2vec_text.check_valid(l0, l1):
+    elif loader.word2vec_text.check_valid(path):
         return _word2vec_text
-    elif loader.word2vec_bin.check_valid(l0, l1):
+    elif loader.word2vec_bin.check_valid(path):
         return _word2vec_bin
     else:
         raise OSError(b"Invalid format")
@@ -176,11 +160,10 @@ class WordEmbedding(object):
                 type(vocab)
             )
 
-        with open(path, mode='rb') as f:
-            if format is None:
-                mod = classify_format(f)
-            else:
-                mod = _select_module(format, binary)
+        if format is None:
+            mod = classify_format(path)
+        else:
+            mod = _select_module(format, binary)
         with open(path, mode='rb') as f:
             if vocab_dict is not None:
                 arr = mod.loader.load_with_vocab(f, vocab_dict, dtype=dtype)

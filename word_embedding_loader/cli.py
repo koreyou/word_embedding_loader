@@ -52,7 +52,7 @@ def _echo_format_result(name):
 
 
 @cli.command()
-@click.argument('inputfile', type=click.File('rb'))
+@click.argument('inputfile', type=click.Path(exists=True))
 def check_format(inputfile):
     """
     Check format of inputfile.

@@ -14,18 +14,20 @@ import numpy as np
 from word_embedding_loader import ParseError, parse_warn
 
 
-def check_valid(line0, line1):
+def check_valid(path):
     """
     Check if a file is valid Glove format.
+    It may have side effect to input file-like object
 
     Args:
-        line0 (bytes): First line of the file
-        line1 (bytes): Second line of the file
+        path (str): Path to check validity
 
     Returns:
         boo: ``True`` if it is valid. ``False`` if it is invalid.
 
     """
+    with open(path, mode='rb') as f:
+        line0 = f.readline()
     data = line0.strip().split(b' ')
     if len(data) <= 2:
         return False

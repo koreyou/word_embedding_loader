@@ -37,12 +37,16 @@ def test_load(word2vec_text_file):
                                 dtype=np.float32))
 
 
-def test_check_valid():
-    assert word2vec.check_valid(b"1 4",
-                                b"the 0.418 0.24968 -0.41242 0.1217")
-    assert not word2vec.check_valid(
-        b"the 0.418 0.24968 -0.41242 0.1217",
-        b", 0.013441 0.23682 -0.16899 0.40951")
+def test_check_valid(tmpdir):
+    with open(tmpdir.join('test_check_valid.txt').strpath, 'a+b') as f:
+        f.write("""2 4\nthe 0.418 0.24968 -0.41242 0.1217""".encode('utf-8'))
+        f.flush()
+        assert word2vec.check_valid(f.name)
+    with open(tmpdir.join('test_check_valid_fail.txt').strpath, 'a+b') as f:
+        f.write("""the 0.418 0.24968 -0.41242 0.1217
+    , 0.013441 0.23682 -0.16899 0.40951""".encode('utf-8'))
+        f.flush()
+        assert not word2vec.check_valid(f.name)
 
 
 def test_load_fail():
