@@ -32,6 +32,19 @@ def word2vec_bin_file(word2vec_bin_file_path):
 
 
 @pytest.fixture
+def numpy_file_path():
+    cur_dir = os.path.dirname(os.path.abspath(__file__))
+    path = os.path.join(cur_dir, 'word_embedding.npz')
+    yield path
+
+
+@pytest.fixture
+def numpy_file(numpy_file_path):
+    with open(numpy_file_path, 'rb') as f:
+        yield f
+
+
+@pytest.fixture
 def word2vec_text_file(tmpdir):
     with open(tmpdir.join('word2vec_text_file.txt').strpath, 'a+b') as f:
         f.write("""3 2

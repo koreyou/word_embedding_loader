@@ -28,6 +28,11 @@ class _word2vec_text:
     saver = saver.word2vec_text
 
 
+class _numpy:
+    loader = loader.numpy
+    saver = saver.numpy
+
+
 def _select_module(format, binary):
     if format == 'glove':
         mod = _glove
@@ -40,6 +45,12 @@ def _select_module(format, binary):
             mod = _word2vec_bin
         else:
             mod = _word2vec_text
+    elif format == 'numpy':
+        mod = _numpy
+        if binary:
+            warnings.warn(
+                b"Argument binary=True for numpy loader is ignored.",
+                UserWarning)
     else:
         raise NameError(('Unknown format "%s"' % format).encode('utf-8'))
     return mod
@@ -62,6 +73,8 @@ def classify_format(path):
         return _glove
     elif loader.word2vec_text.check_valid(path):
         return _word2vec_text
+    elif loader.numpy.check_valid(path):
+        return _numpy
     elif loader.word2vec_bin.check_valid(path):
         return _word2vec_bin
     else:
