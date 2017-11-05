@@ -4,6 +4,12 @@
 CHANGELOG
 =============
 
+v0.2.1
+-------------
+
+* bugfix:
+** Loading binary word2vec fails with python3 (Issue #6)
+
 
 v0.2
 -------------
