@@ -134,8 +134,7 @@ def remove_vocab(vocab, vectors, key):
     Args:
         vocab (dict): Mapping from word (bytes) to index (int)
         vectors (numpy.ndarray): Word embedding vectors
-        key (bytes): New word to insert to move
-        index (int): Index to which ``vec`` is inserted
+        key (bytes): words to remove
 
     Returns:
         dict: Modified vocab file
