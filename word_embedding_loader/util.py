@@ -39,7 +39,7 @@ def create_unk_least_common(we, n):
 
     """
     if len(we.vectors) < n:
-        raise ValueError('len(we.vectors) < n (%d < %d)' % (we.vectors, n))
+        raise ValueError('len(we.vectors) < n (%d < %d)' % (len(we.vectors), n))
     if we.freqs is None:
         return numpy.average(we.vectors[-n:], axis=0)
     else:
@@ -73,7 +73,7 @@ def move_vocab(vocab, vectors, key, index):
 
     """
     if key not in vocab:
-        raise KeyError('key %s does no exist in vocab.' % key)
+        raise KeyError(b'key "' + key + b'" does no exist in vocab.')
     vec = vectors[vocab[key]]
     vectors = numpy.delete(vectors, vocab[key], axis=0)
     vectors = numpy.insert(vectors, index, vec, axis=0)
@@ -114,7 +114,7 @@ def insert_vocab(vocab, vectors, key, index, vec):
     assert vec.ndim == 1 or (vec.ndim == 2 and vec.shape[0] == 1)
     assert vec.shape[-1] == vectors.shape[1]
     if key in vocab:
-        raise KeyError('key %s already exists in vocab.' % key)
+        raise KeyError(b'key "' + key + b'"%s already exists in vocab.')
 
     for k in vocab.keys():
         if vocab[k] >= index:
@@ -144,7 +144,7 @@ def remove_vocab(vocab, vectors, key):
 
     """
     if key not in vocab:
-        raise KeyError('key %s does no exist in vocab.' % key)
+        raise KeyError(b'key "' + key + b'" does no exist in vocab.')
     vectors = numpy.delete(vectors, vocab[key], axis=0)
 
     old_ind = vocab[key]
