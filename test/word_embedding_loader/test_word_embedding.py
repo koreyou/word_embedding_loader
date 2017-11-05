@@ -181,3 +181,143 @@ def test_WordEmbedding___save__(tmpdir):
         arr, vocab = loader.word2vec_bin.load(f, dtype=np.float32)
     assert_array_equal(arr, arr_input)
     assert vocab == vocab
+
+
+def test_WordEmbedding_resize():
+    vocab = {
+        b'</s>': 0,
+        b'the': 1,
+        '日本語'.encode('utf-8'): 2
+    }
+    arr_input = np.array(
+        [[0.418, 0.24968, -0.41242, 0.1217],
+         [0.013441, 0.23682, -0.16899, 0.40951],
+         [0.15164, 0.30177, -0.16763, 0.17684]], dtype=np.float32)
+
+    obj = word_embedding.WordEmbedding(arr_input, vocab)
+    obj.resize(2)
+
+    vocab_e = {
+        b'</s>': 0,
+        b'the': 1
+    }
+    arr_e = np.array(
+        [[0.418, 0.24968, -0.41242, 0.1217],
+         [0.013441, 0.23682, -0.16899, 0.40951]], dtype=np.float32)
+
+    assert_array_equal(obj.vectors, arr_e)
+    assert obj.vocab == vocab_e
+
+
+def test_WordEmbedding_resize_freq():
+    vocab = {
+        b'</s>': 0,
+        b'the': 1,
+        '日本語'.encode('utf-8'): 2
+    }
+    freqs = {
+        b'</s>': 100,
+        b'the': 1,
+        '日本語'.encode('utf-8'): 2
+    }
+    arr_input = np.array(
+        [[0.418, 0.24968, -0.41242, 0.1217],
+         [0.013441, 0.23682, -0.16899, 0.40951],
+         [0.15164, 0.30177, -0.16763, 0.17684]], dtype=np.float32)
+
+    obj = word_embedding.WordEmbedding(arr_input, vocab, freqs=freqs)
+    obj.resize(2)
+
+    vocab_e = {
+        b'</s>': 0,
+        '日本語'.encode('utf-8'): 1
+    }
+    arr_e = np.array(
+        [[0.418, 0.24968, -0.41242, 0.1217],
+         [0.15164, 0.30177, -0.16763, 0.17684]], dtype=np.float32)
+    freqs_e = {
+        b'</s>': 100,
+        '日本語'.encode('utf-8'): 2
+    }
+    assert_array_equal(obj.vectors, arr_e)
+    assert obj.vocab == vocab_e
+    assert obj.freqs == freqs_e
+
+
+def test_load_word_embedding_random(word2vec_text_file, vocab_file):
+    arr, vocab = word_embedding.load_word_embedding(
+        word2vec_text_file.name, vocab=vocab_file.name, unk=b'<unk>',
+        unk_index=0, eos=b'</s>', eos_index=1, unk_creation_method='random')
+
+    vocab_e = {
+        b'<unk>': 0,
+        b'</s>': 1,
+        '日本語'.encode('utf-8'): 2
+    }
+    assert vocab == vocab_e
+    assert len(arr) == 3
+    assert arr.dtype == np.float32
+    assert_array_equal(
+        arr[1], np.array([0.080054, 0.088388], dtype=np.float32))
+    assert_array_equal(
+        arr[2], np.array([-0.16799, 0.10951], dtype=np.float32))
+    arr_unk = arr[0]
+
+    # make sure that arr[0] is preserved amongst different runs.
+    arr, _ = word_embedding.load_word_embedding(
+        word2vec_text_file.name, vocab=vocab_file.name, unk=b'<unk>',
+        unk_index=0, eos=b'</s>', eos_index=1, unk_creation_method='random')
+    assert_array_equal(arr[0], arr_unk)
+
+
+def test_load_word_embedding_least_common(glove_file):
+    arr, vocab = word_embedding.load_word_embedding(
+        glove_file.name, vocab=None,  max_vocab=4, unk=b'<unk>', unk_index=1,
+        eos=b'</s>', eos_index=0, unk_creation_method='least_common',
+        unk_creation_n_least=2
+    )
+
+    vocab_e = {
+        b'</s>': 0,
+        b'<unk>': 1,
+        b'the': 2,
+        b',': 3
+    }
+    assert vocab == vocab_e
+    assert len(arr) == 4
+    assert arr.dtype == np.float32
+    assert_array_equal(
+        arr[2], np.array([0.418, 0.24968, -0.41242, 0.1217], dtype=np.float32))
+    assert_array_equal(
+        arr[3], np.array([0.013441, 0.23682, -0.16899, 0.40951], dtype=np.float32))
+    # unk is produced by averaging "," and "日本語"
+    assert_array_equal(
+        arr[1], np.array([0.0825405, 0.26929501, -0.16831, 0.29317498], dtype=np.float32))
+
+
+def test_load_word_embedding_no_unk(word2vec_bin_file_path):
+    arr, vocab = word_embedding.load_word_embedding(
+        word2vec_bin_file_path, vocab=None, unk=None, unk_index=1, eos=b'</s>',
+        eos_index=1, max_vocab=3)
+
+    vocab_e = {
+        b'the': 0,
+        b'</s>': 1,
+        '日本語'.encode('utf-8'): 2
+    }
+    assert vocab == vocab_e
+    assert len(arr) == 3
+    assert arr.dtype == np.float32
+    # Machine epsilon is 5.96e-08 for float32
+    a = np.array(
+        [-0.5346821, 1.05223596, -0.24605329, -1.82213438, -0.57173866],
+        dtype=np.float32)
+    assert_allclose(arr[0], a, atol=1e-8)
+    a = np.array(
+        [0.08005371, 0.08838806, -0.07660522, -0.06556091, 0.02733154],
+        dtype=np.float32)
+    assert_allclose(arr[1], a, atol=1e-8)
+    a = np.array(
+        [-1.67798984, -0.02645044, -0.18966547, 1.16504729, -1.39292037],
+         dtype=np.float32)
+    assert_allclose(arr[2], a, atol=1e-8)
