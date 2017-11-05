@@ -55,10 +55,8 @@ def _get_two_lines(f):
         bytes
 
     """
-    cur_pos = f.tell()
     l0 = f.readline()
     l1 = f.readline()
-    f.seek(cur_pos)
     return l0, l1
 
 
@@ -173,6 +171,8 @@ class WordEmbedding(object):
                 mod = classify_format(f)
             else:
                 mod = _select_module(format, binary)
+
+        with open(path, mode='rb') as f:
             if vocab is not None:
                 arr = mod.loader.load_with_vocab(f, vocab, dtype=dtype)
                 v = vocab

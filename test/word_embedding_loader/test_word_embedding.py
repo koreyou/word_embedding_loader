@@ -5,7 +5,7 @@ from __future__ import absolute_import, division, print_function, \
 import io
 
 import numpy as np
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_array_equal, assert_allclose
 from six.moves import range
 
 from word_embedding_loader import loader
@@ -42,10 +42,7 @@ def test_WordEmbedding___init__():
     assert obj.size == 49
 
 
-def test_WordEmbedding___load__(glove_file):
-    """ Check one instance of loading; we assume that each loader is tested
-    thoroughly in other unit test.
-    """
+def test_WordEmbedding___load__glove(glove_file):
     obj = word_embedding.WordEmbedding.load(glove_file.name)
     vocab = obj.vocab
     arr = obj.vectors
@@ -66,6 +63,40 @@ def test_WordEmbedding___load__(glove_file):
     assert_array_equal(arr[vocab['日本語'.encode('utf-8')]],
                        np.array([0.15164, 0.30177, -0.16763, 0.17684],
                                 dtype=np.float32))
+
+
+def test_WordEmbedding___load__word2vec_bin(word2vec_bin_file_path):
+    """ I test word2vec too because it had problem when combined with
+    other modules.
+    """
+    obj = word_embedding.WordEmbedding.load(word2vec_bin_file_path)
+    vocab = obj.vocab
+    arr = obj.vectors
+    assert b'</s>' in vocab
+    assert b'the' in vocab
+    assert '日本語'.encode('utf-8') in vocab
+    assert len(vocab) == 3
+    assert len(arr) == 3
+    assert arr.dtype == np.float32
+
+    assert vocab[b'</s>'] == 0
+    assert vocab[b'the'] == 1
+    assert vocab['日本語'.encode('utf-8')] == 2
+
+    # Machine epsilon is 5.96e-08 for float32
+    assert_allclose(arr[vocab[b'</s>']],
+                    np.array([0.08005371, 0.08838806, -0.07660522,
+                              -0.06556091, 0.02733154], dtype=np.float32),
+                    atol=1e-8)
+    assert_allclose(arr[vocab['日本語'.encode('utf-8')]],
+                    np.array([-1.67798984, -0.02645044, -0.18966547,
+                              1.16504729, -1.39292037], dtype=np.float32),
+                    atol=1e-8)
+    assert_allclose(arr[vocab[b'the']],
+                    np.array([-0.5346821, 1.05223596, -0.24605329,
+                              -1.82213438, -0.57173866], dtype=np.float32),
+                    atol=1e-8)
+
 
 
 def test_WordEmbedding___load___vocab(word2vec_text_file, vocab_file):
