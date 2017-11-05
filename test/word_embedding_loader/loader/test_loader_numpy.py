@@ -3,12 +3,12 @@ from __future__ import absolute_import, division, print_function, \
     unicode_literals
 
 import numpy as np
-import word_embedding_loader.loader.word2vec_bin as word2vec
+import word_embedding_loader.loader.numpy as numpy_module
 from numpy.testing import assert_allclose
 
 
-def test_load(word2vec_bin_file):
-    arr, vocab = word2vec.load(word2vec_bin_file)
+def test_load(numpy_file):
+    arr, vocab = numpy_module.load(numpy_file)
     assert b'</s>' in vocab
     assert b'the' in vocab
     assert '日本語'.encode('utf-8') in vocab
@@ -35,22 +35,22 @@ def test_load(word2vec_bin_file):
                     atol=1e-8)
 
 
-def test_check_valid(tmpdir, word2vec_bin_file_path):
-    assert word2vec.check_valid(word2vec_bin_file_path)
+def test_check_valid(tmpdir, numpy_file_path):
+    assert numpy_module.check_valid(numpy_file_path)
     with open(tmpdir.join('test_check_valid_fail.txt').strpath, 'a+b') as f:
         f.write("""the 0.418 0.24968 -0.41242 0.1217
     , 0.013441 0.23682 -0.16899 0.40951""".encode('utf-8'))
         f.flush()
-        assert not word2vec.check_valid(f.name)
+        assert not numpy_module.check_valid(f.name)
 
 
-def test_load_with_vocab(word2vec_bin_file):
+def test_load_with_vocab(numpy_file):
     vocab = dict((
         (b'</s>', 1),
         ('日本語'.encode('utf-8'), 0)
     ))
 
-    arr = word2vec.load_with_vocab(word2vec_bin_file, vocab)
+    arr = numpy_module.load_with_vocab(numpy_file, vocab)
     assert len(arr) == 2
     assert arr.dtype == np.float32
     # Machine epsilon is 5.96e-08 for float32

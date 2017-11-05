@@ -13,25 +13,15 @@ from word_embedding_loader import loader
 from word_embedding_loader import word_embedding
 
 
-def test__get_two_lines():
-    f = io.BytesIO("""2 3
-</s> 0.080054 0.088388 -0.07660
-the -1.420859 1.156857 0.744776""".encode('utf-8'))
-    l0, l1 = word_embedding._get_two_lines(f)
-    # It s
-    assert l0 == b"2 3\n"
-    assert l1 == b"</s> 0.080054 0.088388 -0.07660\n"
-
-
 class TestClassifyFormat:
     def test__classify_format_glove(self, glove_file):
-        assert word_embedding.classify_format(glove_file) == word_embedding._glove
+        assert word_embedding.classify_format(glove_file.name) == word_embedding._glove
 
     def test__classify_format_word2vec_bin(self, word2vec_bin_file):
-        assert word_embedding.classify_format(word2vec_bin_file) == word_embedding._word2vec_bin
+        assert word_embedding.classify_format(word2vec_bin_file.name) == word_embedding._word2vec_bin
 
     def test__classify_format_word2vec_text(self, word2vec_text_file):
-        assert word_embedding.classify_format(word2vec_text_file) == word_embedding._word2vec_text
+        assert word_embedding.classify_format(word2vec_text_file.name) == word_embedding._word2vec_text
 
 
 def test_WordEmbedding___init__():

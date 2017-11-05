@@ -17,6 +17,7 @@ _input_choices = OrderedDict([
 
 _output_choices = OrderedDict((
     ('glove', ("GloVe by Stanford NLP group.", 'glove', False)),
+    ('numpy', ("Original numpy format", 'numpy', False)),
     ('word2vec', ("alias of word2vec-text", 'word2vec', False)),
     ('word2vec-text', ("word2vec (by Mikolov et al.) with -binary 0 option.", 'word2vec', False)),
     ('word2vec-binary', ("word2vec (by Mikolov et al.) with -binary 1 option.", 'word2vec', True))
@@ -52,7 +53,7 @@ def _echo_format_result(name):
 
 
 @cli.command()
-@click.argument('inputfile', type=click.File('rb'))
+@click.argument('inputfile', type=click.Path(exists=True))
 def check_format(inputfile):
     """
     Check format of inputfile.
@@ -64,6 +65,8 @@ def check_format(inputfile):
         _echo_format_result('word2vec-binary')
     elif t == word_embedding._word2vec_text:
         _echo_format_result('word2vec-text')
+    elif t == word_embedding._numpy:
+        _echo_format_result('numpy')
     else:
         assert not "Should not get here!"
 

@@ -28,6 +28,11 @@ class _word2vec_text:
     saver = saver.word2vec_text
 
 
+class _numpy:
+    loader = loader.numpy
+    saver = saver.numpy
+
+
 def _select_module(format, binary):
     if format == 'glove':
         mod = _glove
@@ -40,45 +45,37 @@ def _select_module(format, binary):
             mod = _word2vec_bin
         else:
             mod = _word2vec_text
+    elif format == 'numpy':
+        mod = _numpy
+        if binary:
+            warnings.warn(
+                b"Argument binary=True for numpy loader is ignored.",
+                UserWarning)
     else:
         raise NameError(('Unknown format "%s"' % format).encode('utf-8'))
     return mod
 
 
-def _get_two_lines(f):
-    """
-    Get the first and second lines
-    Args:
-        f (filelike): File that is opened for ascii.
-
-    Returns:
-        bytes
-
-    """
-    l0 = f.readline()
-    l1 = f.readline()
-    return l0, l1
-
-
-def classify_format(f):
+def classify_format(path):
     """
     Determine the format of word embedding file by their content. This operation
     only looks at the first two lines and does not check the sanity of input
     file.
 
     Args:
-        f (Filelike):
+        path (str):
 
     Returns:
         class
 
     """
-    l0, l1 = _get_two_lines(f)
-    if loader.glove.check_valid(l0, l1):
+    if loader.glove.check_valid(path):
         return _glove
-    elif loader.word2vec_text.check_valid(l0, l1):
+    elif loader.word2vec_text.check_valid(path):
         return _word2vec_text
-    elif loader.word2vec_bin.check_valid(l0, l1):
+    elif loader.numpy.check_valid(path):
+        return _numpy
+    elif loader.word2vec_bin.check_valid(path):
         return _word2vec_bin
     else:
         raise OSError(b"Invalid format")
@@ -146,6 +143,8 @@ class WordEmbedding(object):
                 `GloVe <https://nlp.stanford.edu/projects/glove/>`_, Global
                 Vectors for Word Representation, by Jeffrey Pennington,
                 Richard Socher, Christopher D. Manning from Stanford NLP group.
+                ``'numpy'`` for efficient format, defined and implemented by
+                this project.
                 If ``None`` is given, the format is guessed from the content.
             binary (bool): Load file as binary file as in word embedding file
                 created by
@@ -176,11 +175,10 @@ class WordEmbedding(object):
                 type(vocab)
             )
 
-        with open(path, mode='rb') as f:
-            if format is None:
-                mod = classify_format(f)
-            else:
-                mod = _select_module(format, binary)
+        if format is None:
+            mod = classify_format(path)
+        else:
+            mod = _select_module(format, binary)
         with open(path, mode='rb') as f:
             if vocab_dict is not None:
                 arr = mod.loader.load_with_vocab(f, vocab_dict, dtype=dtype)

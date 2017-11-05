@@ -23,7 +23,7 @@ This project currently supports following formats:
     - text (create with ``-binary 0`` option (the default))
     - binary (create with ``-binary 1`` option)
 * `gensim <https://radimrehurek.com/gensim/>`_ 's ``models.word2vec`` module (coming)
-* original HDFS format: a performance centric option for loading and saving word embedding (coming)
+* original numpy format: a performance centric option for loading and saving word embedding
 
 
 Sometimes, you want combine an external program with word embedding file of your own choice. This project also provides a simple executable to convert a word embedding format to another.
