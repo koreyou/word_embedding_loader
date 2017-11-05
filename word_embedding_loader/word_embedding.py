@@ -143,6 +143,8 @@ class WordEmbedding(object):
                 `GloVe <https://nlp.stanford.edu/projects/glove/>`_, Global
                 Vectors for Word Representation, by Jeffrey Pennington,
                 Richard Socher, Christopher D. Manning from Stanford NLP group.
+                ``'numpy'`` for efficient format, defined and implemented by
+                this project.
                 If ``None`` is given, the format is guessed from the content.
             binary (bool): Load file as binary file as in word embedding file
                 created by
