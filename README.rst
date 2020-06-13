@@ -56,7 +56,7 @@ This project does decode vocab. It is up to users to determine and decode bytes.
 Development
 ============
 
-This project us Cython to build some modules, so you need Cython for development.
+This project use Cython to build some modules, so you need Cython for development.
 
 ```bash
 pip install -r requirements.txt
